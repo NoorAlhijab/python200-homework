@@ -14,7 +14,7 @@ def load_and_merge_data():
     dfs = []
     years = range(2015, 2025)
     for year in years:
-        file_path = f"happiness_project/world_happiness_{year}.csv"
+        file_path = f"assignments_01/happiness_project/world_happiness_{year}.csv"
         # Files contains (; and , )
         df = pd.read_csv(file_path, sep=";", decimal=",")
 
@@ -28,8 +28,8 @@ def load_and_merge_data():
 
     # store all dfs 
     merged_df = pd.concat(dfs, ignore_index=True)
-    merged_df.to_csv("outputs/merged_happiness.csv", index=False)
-    logger.info("Saved merged_happiness.csv")
+    merged_df.to_csv("assignments_01/outputs/merged_happiness.csv", index=False)
+    logger.info("Saved assignments_01/outputs/merged_happiness.csv")
     return merged_df
     
 # Task 2: Descriptive Statistics
@@ -74,7 +74,7 @@ def visual_exploration(df):
     plt.title("Distribution of Happiness Scores")
     plt.xlabel("Happiness Score")
     plt.ylabel("Count")
-    plt.savefig("outputs/happiness_histogram.png")
+    plt.savefig("assignments_01/outputs/happiness_histogram.png")
     plt.close()
 
     logger.info("Saved happiness histogram")
@@ -85,7 +85,7 @@ def visual_exploration(df):
     plt.title("Happiness Score by Year")
     plt.xlabel("Year")
     plt.ylabel("Happiness Score")
-    plt.savefig("outputs/happiness_by_year.png")
+    plt.savefig("assignments_01/outputs/happiness_by_year.png")
     plt.close()
 
     logger.info("Saved happiness by year boxplot")
@@ -96,7 +96,7 @@ def visual_exploration(df):
     plt.title("GDP per Capita vs Happiness Score")
     plt.xlabel("GDP per Capita")
     plt.ylabel("Happiness Score")
-    plt.savefig("outputs/gdp_vs_happiness.png")
+    plt.savefig("assignments_01/outputs/gdp_vs_happiness.png")
     plt.close()
 
     logger.info("Saved GDP vs happiness scatter plot")
@@ -107,7 +107,7 @@ def visual_exploration(df):
     corr = numeric_df.corr()
     sns.heatmap(corr, annot=True, cmap="coolwarm")
     plt.title("Correlation Heatmap")
-    plt.savefig("outputs/correlation_heatmap.png")
+    plt.savefig("assignments_01/outputs/correlation_heatmap.png")
     plt.close()
 
     logger.info("Saved correlation heatmap")
@@ -267,9 +267,10 @@ def summary_report(df, corr_results, test_results):
         strongest_corr = significant_results[strongest_variable]["correlation"]
 
         logger.info(
-            f"Variable most strongly correlated with happiness after "
-            f"Bonferroni correction: {strongest_variable} {strongest_corr}"
-        )
+            f"Final result: The variable most strongly correlated with happiness "
+            f"after Bonferroni correction is {strongest_variable} "
+            f"with correlation {strongest_corr}"
+            )
 
     else:
         logger.info(
