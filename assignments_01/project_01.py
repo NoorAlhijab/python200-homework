@@ -131,10 +131,16 @@ def hypothesis_testing(df):
     logger.info(f"2020 Mean: {mean_2020}")
     
     if p_value < 0.05:
-        logger.info("The difference in happiness scores between 2019 and 2020 is statistically significant.")
+        logger.info(
+            f"The difference is statistically significant at alpha = 0.05. "
+            f"Happiness scores changed from {mean_2019} in 2019 to {mean_2020} in 2020."
+        )
     else:
-        logger.info("No statistically significant difference detected in happiness scores between 2019 and 2020.")
-    
+        logger.info(
+            "The difference is not statistically significant at alpha = 0.05. "
+            "There is no strong evidence of a change in happiness scores "
+            "from 2019 to 2020."
+        )
     # Region comparison
     western_europe = df[df["Regional indicator"] == "Western Europe"]["Happiness score"]
     middle_east_and_north_africa = df[df["Regional indicator"] == "Middle East and North Africa"]["Happiness score"]
@@ -233,8 +239,8 @@ def summary_report(df, corr_results, test_results):
     top_3_regions = region_mean.nlargest(3)
     bottom_3_regions = region_mean.nsmallest(3)
 
-    logger.info(f"Top 3 happiest regions:\n{top_3_regions}")
-    logger.info(f"Bottom 3 happiest regions:\n{bottom_3_regions}")
+    logger.info(f"Top 3 happiest regions are:\n{top_3_regions.to_string()}")
+    logger.info(f"Bottom 3 happiest regions are:\n{bottom_3_regions.to_string()}")
     
     # The result of the pre/post-2020 t-test
     if test_results["p_value"] < 0.05:
@@ -267,9 +273,9 @@ def summary_report(df, corr_results, test_results):
         strongest_corr = significant_results[strongest_variable]["correlation"]
 
         logger.info(
-            f"Final result: The variable most strongly correlated with happiness "
-            f"after Bonferroni correction is {strongest_variable} "
-            f"with correlation {strongest_corr}"
+            f"Final result: After Bonferroni correction, the strongest significant "
+            f"correlation with happiness score is {strongest_variable} "
+            f"with Pearson correlation {strongest_corr}."
             )
 
     else:
