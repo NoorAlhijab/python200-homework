@@ -14,7 +14,7 @@ def load_and_merge_data():
     dfs = []
     years = range(2015, 2025)
     for year in years:
-        file_path = f"happiness_project/world_happiness_{year}.csv"
+        file_path = f"assignments_01/happiness_project/world_happiness_{year}.csv"
         # Files contains (; and , )
         df = pd.read_csv(file_path, sep=";", decimal=",")
 
@@ -28,9 +28,8 @@ def load_and_merge_data():
 
     # store all dfs 
     merged_df = pd.concat(dfs, ignore_index=True)
-    merged_df.to_csv("outputs/merged_happiness.csv", index=False)
-    logger.info("Saved merged_happiness.csv")
-    logger.info(f"Columns: {merged_df.columns.tolist()}")
+    merged_df.to_csv("assignments_01/outputs/merged_happiness.csv", index=False)
+    logger.info("Saved assignments_01/outputs/merged_happiness.csv")
     return merged_df
     
 # Task 2: Descriptive Statistics
@@ -75,7 +74,7 @@ def visual_exploration(df):
     plt.title("Distribution of Happiness Scores")
     plt.xlabel("Happiness Score")
     plt.ylabel("Count")
-    plt.savefig("outputs/happiness_histogram.png")
+    plt.savefig("assignments_01/outputs/happiness_histogram.png")
     plt.close()
 
     logger.info("Saved happiness histogram")
@@ -86,7 +85,7 @@ def visual_exploration(df):
     plt.title("Happiness Score by Year")
     plt.xlabel("Year")
     plt.ylabel("Happiness Score")
-    plt.savefig("outputs/happiness_by_year.png")
+    plt.savefig("assignments_01/outputs/happiness_by_year.png")
     plt.close()
 
     logger.info("Saved happiness by year boxplot")
@@ -97,7 +96,7 @@ def visual_exploration(df):
     plt.title("GDP per Capita vs Happiness Score")
     plt.xlabel("GDP per Capita")
     plt.ylabel("Happiness Score")
-    plt.savefig("outputs/gdp_vs_happiness.png")
+    plt.savefig("assignments_01/outputs/gdp_vs_happiness.png")
     plt.close()
 
     logger.info("Saved GDP vs happiness scatter plot")
@@ -108,7 +107,7 @@ def visual_exploration(df):
     corr = numeric_df.corr()
     sns.heatmap(corr, annot=True, cmap="coolwarm")
     plt.title("Correlation Heatmap")
-    plt.savefig("outputs/correlation_heatmap.png")
+    plt.savefig("assignments_01/outputs/correlation_heatmap.png")
     plt.close()
 
     logger.info("Saved correlation heatmap")
@@ -132,10 +131,16 @@ def hypothesis_testing(df):
     logger.info(f"2020 Mean: {mean_2020}")
     
     if p_value < 0.05:
-        logger.info("The difference in happiness scores between 2019 and 2020 is statistically significant.")
+        logger.info(
+            f"The difference is statistically significant at alpha = 0.05. "
+            f"Happiness scores changed from {mean_2019} in 2019 to {mean_2020} in 2020."
+        )
     else:
-        logger.info("No statistically significant difference detected in happiness scores between 2019 and 2020.")
-    
+        logger.info(
+            "The difference is not statistically significant at alpha = 0.05. "
+            "There is no strong evidence of a change in happiness scores "
+            "from 2019 to 2020."
+        )
     # Region comparison
     western_europe = df[df["Regional indicator"] == "Western Europe"]["Happiness score"]
     middle_east_and_north_africa = df[df["Regional indicator"] == "Middle East and North Africa"]["Happiness score"]
@@ -156,11 +161,11 @@ def hypothesis_testing(df):
         logger.info("No statistically significant difference detected between Western Europe and Middle East and North Africa")
     
     return {
-        "p_value": p_value,
-        "mean_2019": mean_2019,
-        "mean_2020": mean_2020
+    "t_stat": t_stat,
+    "p_value": p_value,
+    "mean_2019": mean_2019,
+    "mean_2020": mean_2020
     }
-
     
  # Task 5: Correlation and Multiple Comparisons
 @task
@@ -191,13 +196,17 @@ def correlation_and_multiple_comparisons(df):
     # Calculate Pearson correlation for each variable
     for variable in variables:
         corr_coef, p_value = stats.pearsonr(df[variable], df["Happiness score"])
-        corr_results[variable] = (corr_coef, p_value)
+        corr_results[variable] = {
+            "correlation": corr_coef,
+            "p_value": p_value,
+            "significant": p_value < adjusted_alpha
+            }
 
         logger.info(f"Variables: {variable}")
         logger.info(f"Correlation Coefficient: {corr_coef}")
         logger.info(f"P-value: {p_value}")
         
-        # Original alpha
+        # Before Bonferroni correction
         if p_value < 0.05:
             logger.info(f"{variable} is significantly correlated with Happiness score")
         else:
@@ -220,15 +229,18 @@ def summary_report(df, corr_results, test_results):
     # Total number of countries and years
     total_countries = df["Country"].nunique()
     total_years = df["year"].nunique()
+
     logger.info(f"Total number of countries: {total_countries}")
     logger.info(f"Total number of years: {total_years}")
     
     # The top 3 and bottom 3 regions
     region_mean = df.groupby("Regional indicator")["Happiness score"].mean()
+
     top_3_regions = region_mean.nlargest(3)
     bottom_3_regions = region_mean.nsmallest(3)
-    logger.info(f"Top 3 happiest regions:\n{top_3_regions}")
-    logger.info(f"Bottom 3 happiest regions:\n{bottom_3_regions}")
+
+    logger.info(f"Top 3 happiest regions are:\n{top_3_regions.to_string()}")
+    logger.info(f"Bottom 3 happiest regions are:\n{bottom_3_regions.to_string()}")
     
     # The result of the pre/post-2020 t-test
     if test_results["p_value"] < 0.05:
@@ -242,11 +254,34 @@ def summary_report(df, corr_results, test_results):
             "between happiness scores in 2019 and 2020."
         )
     
-    # The variable most strongly correlated
-    strongest_variable = max(corr_results, key=lambda x: abs(corr_results[x][0]))
-    strongest_corr = corr_results[strongest_variable][0]
-    
-    logger.info(f"Variable most strongly correlated with happiness: {strongest_variable} {strongest_corr}") 
+    # The variable most strongly correlated after Bonferroni correction
+    significant_results = {
+        variable: result
+        for variable, result in corr_results.items()
+        if result["significant"]
+    }
+
+    if significant_results:
+
+        strongest_variable = max(
+            significant_results,
+            key=lambda x: abs(
+                significant_results[x]["correlation"]
+            )
+        )
+
+        strongest_corr = significant_results[strongest_variable]["correlation"]
+
+        logger.info(
+            f"Final result: After Bonferroni correction, the strongest significant "
+            f"correlation with happiness score is {strongest_variable} "
+            f"with Pearson correlation {strongest_corr}."
+            )
+
+    else:
+        logger.info(
+            "No variables remained significant after Bonferroni correction."
+        )
 
 
 @flow

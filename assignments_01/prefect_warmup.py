@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
 
 # 1. This pipeline is simple -- just three small functions on a handful of numbers. Why might Prefect be more overhead than it is worth here?
-# Prefect is not necessary for a simple pipeline because it is simple and we can do all analysis steps using normal Python functions.
+# Prefect is not necessary for a simple pipeline because the workflow is small, runs only once, and can be completed easily using normal Python functions.
 
 # 2. Describe some realistic scenarios where a framework like Prefect could still be useful, even if the pipeline logic itself stays simple like in this case.
-# If raw data is updated every day, for example at midnight, Prefect can handle the tasks automatically, schedule the workflow, and help reduce errors.
+# Prefect is useful when pipelines run regularly, such as daily data processing jobs. It can schedule workflows, track task states, retry failed tasks, and provide logging.
