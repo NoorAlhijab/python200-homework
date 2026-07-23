@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -124,9 +125,12 @@ print(classification_report(y_test, tree_pred))
 c_values = [0.01, 1.0, 100]
 
 for c in c_values:
-    model = LogisticRegression(C=c, max_iter=1000, solver='liblinear')
+    model = OneVsRestClassifier( LogisticRegression(C=c, max_iter=1000, solver='liblinear'))
     model.fit(X_train_scaled, y_train)
-    coef_sum = np.abs(model.coef_).sum()
+    coef_sum = sum(
+        np.abs(estimator.coef_).sum()
+        for estimator in model.estimators_
+    )
     print(f"C={c}, Total Coefficient Magnitude={coef_sum:.3f}")
 # As C increases, the total coefficient magnitude increases.
 # This shows that larger C means weaker regularization, allowing larger coefficients.
@@ -165,6 +169,8 @@ plt.savefig("assignments_03/outputs/pca_2d_projection.png")
 
 # PCA Question 3
 cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
+plt.axhline(y=0.80, color="red", linestyle="--", label="80%")
+plt.legend()
 plt.plot(cumulative_variance)
 plt.title("Cumulative Explained Variance")
 plt.xlabel("Number of Components")
@@ -176,7 +182,7 @@ print("Components needed for 80% variance:", components_80)
 
 plt.savefig("assignments_03/outputs/pca_variance_explained.png")
 
-# Approximately 13 components are needed to explain 80% of the variance
+# About 13 principal components are needed to explain 80% of the variance.
 
 # PCA Question 4
 def reconstruct_digit(sample_idx, scores, pca, n_components):
@@ -188,24 +194,26 @@ def reconstruct_digit(sample_idx, scores, pca, n_components):
 
 n_values = [2, 5, 15, 40]
 
+# Use the first five samples from X_digits
+sample_indices = [0, 1, 2, 3, 4]
 fig, ax = plt.subplots(5, 5, figsize=(10, 10))
 # Original images
-for i in range(5):
-    ax[0, i].imshow(images[i], cmap="gray_r")
-    ax[0, i].set_title(f"Digit {y_digits[i]}")
-    ax[0, i].axis("off")
+for col, sample_idx in enumerate(sample_indices):
+    ax[0, col].imshow(images[sample_idx], cmap="gray_r")
+    ax[0, col].set_title(f"Digit {y_digits[sample_idx]}")
+    ax[0, col].axis("off")
 ax[0, 0].set_ylabel ("Original", fontsize=12)
 
 # Reconstructed images
 for row, n in enumerate(n_values, start=1):
-    for col in range(5):
-        reconstructed = reconstruct_digit(col, scores, pca, n)
+    for col, sample_idx in enumerate(sample_indices):
+        reconstructed = reconstruct_digit(sample_idx, scores, pca, n)
         ax[row, col].imshow(reconstructed, cmap="gray_r")
         ax[row, col].axis("off")
     ax[row, 0].set_ylabel(f"n={n}", fontsize=12)
 
-plt.subplots_adjust(left=0.15)
+plt.tight_layout()
 plt.savefig("assignments_03/outputs/pca_reconstructions.png", bbox_inches="tight")
 plt.close()
-# The digits become clearly recognizable around n=15.
-# This is close to where the cumulative explained variance reaches about 80%.
+# Using more principal components makes the reconstructed digits look more like the originals.
+# Around 15 components, the digits are clearly recognizable.
