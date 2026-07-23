@@ -8,7 +8,6 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -49,10 +48,10 @@ knn = KNeighborsClassifier(n_neighbors=5)
 # Fit using unscaled training data
 knn.fit(X_train, y_train)
 # Predict on the test data
-pred = knn.predict(X_test)
+knn_unscaled_pred = knn.predict(X_test)
 # Print accuracy and classification report
-print("Accuracy:", accuracy_score(y_test, pred))
-print(classification_report(y_test, pred))
+print("Accuracy:", accuracy_score(y_test, knn_unscaled_pred))
+print(classification_report(y_test, knn_unscaled_pred))
 
 # KNN Question 2
 # Build KNN model with 5 neighbors
@@ -90,18 +89,19 @@ for k in k_values:
     knn = KNeighborsClassifier(n_neighbors=k)
     cv_scores = cross_val_score(knn, X_train, y_train, cv=5)
     print(f"K={k}, Mean CV Score: {cv_scores.mean():.3f}")
-# I would choose k=5 or k=7 since they have the highest mean CV score,
-# which means they performed best during cross-validation.
+# I would choose k=5 because it had a high CV score and gives a good balance.
+# Smaller k values may overfit, and larger k values may underfit.
 
 # --- Classifier Evaluation ---
 # Classifier Evaluation Question 1
 # Create confusion matrix
-cm = confusion_matrix(y_test, pred)
+cm = confusion_matrix(y_test, knn_unscaled_pred)
 # Display confusion matrix
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=iris.target_names)
 disp.plot(colorbar=False)
 # Save the figure
 plt.savefig("assignments_03/outputs/knn_confusion_matrix.png")
+plt.close()
 # The model most often confuses versicolor and virginica because they have similar features,
 # making them harder to separate.
 
@@ -116,21 +116,18 @@ tree_pred = tree.predict(X_test)
 # Print accuracy and classification report
 print("Accuracy:", accuracy_score(y_test, tree_pred))
 print(classification_report(y_test, tree_pred))
-# Compare Decision Tree accuracy with KNN accuracy.
-# Decision Trees do not rely on distance calculations, so scaling usually does not affect performance.
-
+# Decision Trees and KNN can have similar accuracy.
+# Decision Trees do not use distance calculations, 
+# so scaling does not usually affect performance.
 
 # --- Logistic Regression and Regularization ---
 # Logistic Regression Question 1
 c_values = [0.01, 1.0, 100]
 
 for c in c_values:
-    model = OneVsRestClassifier( LogisticRegression(C=c, max_iter=1000, solver='liblinear'))
+    model = LogisticRegression(C=c, max_iter=1000, solver='liblinear')
     model.fit(X_train_scaled, y_train)
-    coef_sum = sum(
-        np.abs(estimator.coef_).sum()
-        for estimator in model.estimators_
-    )
+    coef_sum = np.abs(model.coef_).sum()
     print(f"C={c}, Total Coefficient Magnitude={coef_sum:.3f}")
 # As C increases, the total coefficient magnitude increases.
 # This shows that larger C means weaker regularization, allowing larger coefficients.
@@ -153,7 +150,7 @@ for digit in range(10):
    ax[digit].axis('off')
 plt.tight_layout()   
 plt.savefig("assignments_03/outputs/sample_digits.png")
-
+plt.close()
 # PCA Question 2
 pca = PCA()
 pca.fit(X_digits)
@@ -164,14 +161,15 @@ plt.title("PCA")
 plt.xlabel("Principal Component 1")
 plt.ylabel("Principal Component 2")
 plt.savefig("assignments_03/outputs/pca_2d_projection.png")
+plt.close()
 # Same-digit images mostly cluster together in this 2D space, 
 # although some digits overlap because reducing 64 features to 2 loses some information.
 
 # PCA Question 3
 cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
+plt.plot(cumulative_variance)
 plt.axhline(y=0.80, color="red", linestyle="--", label="80%")
 plt.legend()
-plt.plot(cumulative_variance)
 plt.title("Cumulative Explained Variance")
 plt.xlabel("Number of Components")
 plt.ylabel("Cumulative Explained Variance")
@@ -181,8 +179,10 @@ components_80 = np.argmax(cumulative_variance >= 0.80) + 1
 print("Components needed for 80% variance:", components_80)
 
 plt.savefig("assignments_03/outputs/pca_variance_explained.png")
+plt.close()
 
-# About 13 principal components are needed to explain 80% of the variance.
+# Approximately 13 components are needed to explain 80% of the variance.
+# PCA reduces the number of features while keeping most of the important information.
 
 # PCA Question 4
 def reconstruct_digit(sample_idx, scores, pca, n_components):

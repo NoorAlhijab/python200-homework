@@ -18,12 +18,9 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import (
     confusion_matrix,
     accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
     classification_report
 )
-from sklearn.inspection import DecisionBoundaryDisplay
+
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -100,10 +97,10 @@ print(df.shape)
 print(df.head())
 # Check how many spam/ham values 
 print(df["spam_label"].value_counts())
-# The dataset is fairly balanced.
-# Ham emails: 2788 (about 61%)
-# Spam emails: 1813 (about 39%)
-# Accuracy will be usel metric.
+
+# The dataset has more ham emails than spam emails.
+# Accuracy is useful, but precision and recall are also important because
+# false positives can mark real emails as spam.
 
 # Boxplot for key features
 features = ["word_freq_free", "char_freq_!", "capital_run_length_total"]
@@ -120,17 +117,13 @@ for feature in features:
 # Observations from feature distributions:
 #
 # word_freq_free:
-# Spam emails usually contain more occurrences of the word "free" because
-# many spam messages use promotional language and offers.
+# Spam emails often contain the word "free".
 #
 # char_freq_!:
-# Spam emails tend to have higher exclamation mark frequency because
-# advertisements and spam messages often use urgent or attention-grabbing text.
+# Spam emails often use more exclamation marks.
 #
 # capital_run_length_total:
-# Spam emails often contain longer sequences of capital letters because
-# they may use uppercase words to emphasize deals, warnings, or promotions.
-
+# Spam emails often contain longer capital letter sequences.
 
 
 # Task 2: Prepare Your Data
@@ -191,8 +184,8 @@ pred = knn_scaled.predict(X_test_scaled)
 print("KNN Scaled Accuracy:", accuracy_score(y_test, pred))
 print(classification_report(y_test, pred))
 
-# Unscaled accuracy is about 0.89 and scaled accuracy is about 0.90, 
-# that means KNN preformed better with scaled data
+# Scaled KNN performed slightly better.
+# Scaling helps KNN because it uses distance between data points.
 
 # KNN PCA
 knn_pca = KNeighborsClassifier(n_neighbors=5)
@@ -218,6 +211,9 @@ tree_pred = tree_final.predict(X_test)
 print("Tree Accuracy:", accuracy_score(y_test, tree_pred))
 print(classification_report(y_test, tree_pred))
 
+# I chose max_depth=10 because it balances training and test accuracy.
+# Very deep trees can overfit, while small trees can miss patterns.
+
 # Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
@@ -234,6 +230,8 @@ tree_importance = pd.Series(
 print("Decision Tree Top Features")
 print(tree_importance.sort_values(ascending=False).head(10))
 
+# Random Forest is more reliable because it combines many trees
+# and reduces overfitting.
 
 rf_importance = pd.Series(
     rf.feature_importances_,
@@ -276,26 +274,16 @@ print(classification_report(y_test, log_pred_pca))
 
 # Model comparison:
 #
-# Random Forest performed the best based on accuracy because tree-based
-# models can learn complex patterns without requiring feature scaling.
+# Random Forest performed best because it can learn complex patterns.
 #
-# KNN comparison:
-# The scaled KNN model performed better than the unscaled version because
-# KNN uses distance calculations, and scaling prevents larger-range features
-# from dominating the distance.
+# KNN performed better after scaling because it uses distance calculations.
 #
-# The PCA version of KNN reduced the number of features while keeping most
-# important information. However, the improvement was small compared with
-# the scaled version.
+# PCA reduced the number of features but did not improve model performance.
 #
-# Logistic Regression comparison:
-# The scaled Logistic Regression model performed better than the PCA version.
-# This shows that removing features with PCA did not improve performance
-# for Logistic Regression on this dataset.
+# Logistic Regression worked better with scaled data than PCA data.
 #
-# For spam detection, accuracy alone is not enough. False positives are
-# important because legitimate emails could incorrectly be marked as spam.
-# Therefore, precision and recall should also be considered.
+# Precision and recall are important because false positives can mark
+# important emails as spam.
 
 # Confusion matrix for best model
 disp = ConfusionMatrixDisplay.from_predictions(y_test, rf_pred)
@@ -303,14 +291,23 @@ plt.title("Best Model Confusion Matrix")
 plt.savefig("assignments_03/outputs/best_model_confusion_matrix.png")
 plt.close()
 
-# The confusion matrix shows the number of false positives and false negatives.
-#
-# False positives are legitimate emails incorrectly classified as spam.
-# False negatives are spam emails incorrectly classified as ham.
-#
-# For spam filtering, false positives are usually the more concerning error
-# because an important email could be incorrectly moved to the spam folder.
-# False negatives are less harmful because the user can delete an unwanted email.
+# Check false positives and false negatives
+cm = confusion_matrix(y_test, rf_pred)
+
+false_positives = cm[0, 1]  # Real emails marked as spam
+false_negatives = cm[1, 0]  # Spam emails missed
+
+print("False Positives:", false_positives)
+print("False Negatives:", false_negatives)
+
+if false_positives > false_negatives:
+    print("More false positives than false negatives.")
+else:
+    print("More false negatives than false positives.")
+
+# False positives are important because real emails may be marked as spam.
+# False negatives mean spam emails are missed.
+# For spam detection, false positives are usually more concerning.
 
 # Task 4: Cross-Validation
 # KNN Unscaled
@@ -339,7 +336,7 @@ print("std:", tree_cv.std())
 
 # Random Forest
 rf_cv = cross_val_score(rf, X_train, y_train, cv=5)
-print("Random Forset")
+print("Random Forest")
 print("Mean:", rf_cv.mean())
 print("std:", rf_cv.std())
 
@@ -355,16 +352,11 @@ print("Logistic Regression PCA")
 print("Mean:", log_reg_pca_cv.mean())
 print("std:", log_reg_pca_cv.std())
 
-# Cross-validation summary:
+# Random Forest had the best average accuracy across folds.
+# This means it performed consistently well.
 #
-# Random Forest had the highest average accuracy across folds,
-# showing the strongest overall performance.
-#
-# Logistic Regression PCA had the lowest standard deviation,
-# meaning it produced the most consistent results across different folds.
-#
-# The cross-validation results are similar to the single train/test split,
-# which increases confidence that the model comparison is reliable.
+# Similar cross-validation and test results increase confidence
+# that the model is reliable.
 
 # Task 5: Building a Prediction Pipeline
 
@@ -373,9 +365,9 @@ rf_pipeline = Pipeline([
     ("classifier", RandomForestClassifier(n_estimators=100, random_state=42))
     ])
 rf_pipeline.fit(X_train, y_train)
-rf_pred =rf_pipeline.predict(X_test)
+rf_pipeline_pred =rf_pipeline.predict(X_test)
 print("Random Forest Pipeline")
-print(classification_report(y_test, rf_pred))
+print(classification_report(y_test, rf_pipeline_pred))
 
 # Logistic Regression Pipline
 log_pipeline = Pipeline([
@@ -387,21 +379,15 @@ log_pipeline = Pipeline([
         ))
     ])
 log_pipeline.fit(X_train, y_train)
-log_pred = log_pipeline.predict(X_test)
+log_pipline_pred = log_pipeline.predict(X_test)
 print("Logistic Regression Pipeline")
-print(classification_report(y_test, log_pred))
+print(classification_report(y_test, log_pipline_pred))
 
-# Pipeline comparison:
+# Random Forest does not need scaling, so the pipeline only contains the model.
 #
-# The Random Forest pipeline produces the same results as the manual Random
-# Forest model because the pipeline only contains the classifier and does not
-# apply any preprocessing. Tree-based models do not require feature scaling.
+# Logistic Regression uses StandardScaler because it works better
+# when features have similar scales.
 #
-# The Logistic Regression pipeline includes StandardScaler because logistic
-# regression performs better when features are on similar scales.
-#
-# The pipeline approach creates a reusable workflow by combining preprocessing
-# and modeling steps together and helps prevent data leakage.
-
+# Pipelines combine steps together and help prevent data leakage.
 
 
