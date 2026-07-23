@@ -71,10 +71,14 @@ print(classification_report(y_test, pred))
 # KNN Question 3
 knn = KNeighborsClassifier(n_neighbors=5)
 cv_scores = cross_val_score(knn, X_train, y_train, cv=5)
-# accuracy on each fold
-print(cv_scores)           
+
+print("Fold scores:")
+for i, score in enumerate(cv_scores, start=1):
+    print(f"Fold {i}: {score:.3f}")
+
 print(f"Mean: {cv_scores.mean():.3f}")
 print(f"Std:  {cv_scores.std():.3f}")
+
 # This result is more trustworthy than a single train/test split because
 # cross-validation tests the model on multiple different parts of the training data,
 # giving a more reliable estimate of its performance.
@@ -140,7 +144,7 @@ fig, ax = plt.subplots(1, 10, figsize=(12, 2))
 for digit in range(10):
    idx = np.where(y_digits == digit)[0][0]
    ax[digit].imshow(images[idx],  cmap='gray_r')
-   ax[digit].set_title(str(digit))
+   ax[digit].set_title(f"Digit {y_digits[idx]}")
    # Remove axis numbers
    ax[digit].axis('off')
 plt.tight_layout()   
@@ -188,7 +192,7 @@ fig, ax = plt.subplots(5, 5, figsize=(10, 10))
 # Original images
 for i in range(5):
     ax[0, i].imshow(images[i], cmap="gray_r")
-    ax[0, i].set_title(f"Digit {i+1}")
+    ax[0, i].set_title(f"Digit {y_digits[i]}")
     ax[0, i].axis("off")
 ax[0, 0].set_ylabel ("Original", fontsize=12)
 
