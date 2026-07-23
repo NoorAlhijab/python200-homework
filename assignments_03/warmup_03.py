@@ -120,7 +120,7 @@ print(classification_report(y_test, tree_pred))
 c_values = [0.01, 1.0, 100]
 
 for c in c_values:
-    model = LogisticRegression(C=c, max_iter=1000, solver='lbfgs')
+    model = LogisticRegression(C=c, max_iter=1000, solver='liblinear')
     model.fit(X_train_scaled, y_train)
     coef_sum = np.abs(model.coef_).sum()
     print(f"C={c}, Total Coefficient Magnitude={coef_sum:.3f}")
@@ -188,8 +188,9 @@ fig, ax = plt.subplots(5, 5, figsize=(10, 10))
 # Original images
 for i in range(5):
     ax[0, i].imshow(images[i], cmap="gray_r")
-    ax[0, i].set_title("Original")
+    ax[0, i].set_title(f"Digit {i+1}")
     ax[0, i].axis("off")
+ax[0, 0].set_ylabel ("Original", fontsize=12)
 
 # Reconstructed images
 for row, n in enumerate(n_values, start=1):
@@ -197,10 +198,10 @@ for row, n in enumerate(n_values, start=1):
         reconstructed = reconstruct_digit(col, scores, pca, n)
         ax[row, col].imshow(reconstructed, cmap="gray_r")
         ax[row, col].axis("off")
-        ax[row, col].set_title(f"n={n}")
+    ax[row, 0].set_ylabel(f"n={n}", fontsize=12)
 
-plt.tight_layout()
-plt.savefig("assignments_03/outputs/pca_reconstructions.png")
-
+plt.subplots_adjust(left=0.15)
+plt.savefig("assignments_03/outputs/pca_reconstructions.png", bbox_inches="tight")
+plt.close()
 # The digits become clearly recognizable around n=15.
 # This is close to where the cumulative explained variance reaches about 80%.

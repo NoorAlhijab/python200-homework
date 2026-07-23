@@ -215,8 +215,41 @@ rf_pred = rf.predict(X_test)
 print("Random Forest Accuracy:", accuracy_score(y_test, rf_pred))
 print(classification_report(y_test, rf_pred))
 
+# Feature importance
+tree_importance = pd.Series(
+    tree_final.feature_importances_,
+    index=X.columns
+)
+
+print("Decision Tree Top Features")
+print(tree_importance.sort_values(ascending=False).head(10))
+
+
+rf_importance = pd.Series(
+    rf.feature_importances_,
+    index=X.columns
+)
+
+print("Random Forest Top Features")
+print(rf_importance.sort_values(ascending=False).head(10))
+
+plt.figure(figsize=(10,6))
+
+rf_importance.sort_values(ascending=False).head(10).plot(
+    kind="bar"
+)
+
+plt.title("Top 10 Random Forest Feature Importances")
+plt.ylabel("Importance")
+
+plt.savefig(
+    "assignments_03/outputs/feature_importances.png"
+)
+
+plt.close()
+
 # Logistic Regression Scaled
-log_reg_scaled = LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs')
+log_reg_scaled = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 log_reg_scaled.fit(X_train_scaled, y_train)
 log_pred_scaled = log_reg_scaled.predict(X_test_scaled)
 
@@ -224,18 +257,30 @@ print("Logistic Regression Scaled Accuracy:", accuracy_score(y_test, log_pred_sc
 print(classification_report(y_test, log_pred_scaled))
 
 # Logistic Regression PCA
-log_reg_pca = LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs')
+log_reg_pca = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 log_reg_pca.fit(X_train_pca, y_train)
 log_pred_pca = log_reg_pca.predict(X_test_pca)
 
 print("Logistic Regression PCA Accuracy:", accuracy_score(y_test, log_pred_pca))
 print(classification_report(y_test, log_pred_pca))
 
+# Model comparsion:
+# Random Forest performed the best based on accuracy.
+# KNN improved after scaling because distance-based models are affected by feature sizes.
+# PCA slightly improved KNN, but did not improve Logistic Regression.
+# For spam detection, accuracy is not enough. False positives are important because
+# real emails could be marked as spam, so precision and recall should also be considered.
+
 # Confusion matrix for best model
 disp = ConfusionMatrixDisplay.from_predictions(y_test, rf_pred)
 plt.title("Best Model Confusion Matrix")
 plt.savefig("assignments_03/outputs/best_model_confusion_matrix.png")
 plt.close()
+
+# The confusion matrix shows the number of false positives and false negatives.
+# False positives are legitimate emails incorrectly classified as spam.
+# False negatives are spam emails incorrectly classified as ham.
+# The model makes more of the error type shown in the confusion matrix.
 
 # Task 4: Cross-Validation
 # KNN Unscaled
@@ -282,6 +327,9 @@ print("std:", log_reg_pca_cv.std())
 
 # Random Forset has the highest mean accuracy
 # Logistic Regression (PCA) has the lowest standard deviation
+# Logistic Regression PCA had the lowest standard deviation,
+# meaning it was the most stable across folds.
+# The ranking is similar to the single train/test split results.
 
 # Task 5: Building a Prediction Pipeline
 
@@ -296,11 +344,11 @@ print(classification_report(y_test, rf_pred))
 
 # Logistic Regression Pipline
 log_pipeline = Pipeline([
-    ("Scaler", StandardScaler()), 
+    ("scaler", StandardScaler()), 
     ("classifier", LogisticRegression(
         C=1.0, 
         max_iter=1000, 
-        solver='lbfgs'
+        solver='liblinear'
         ))
     ])
 log_pipeline.fit(X_train, y_train)
