@@ -114,16 +114,14 @@ for feature in features:
     plt.savefig(f"assignments_03/outputs/{feature}_boxplot.png")
     plt.close()
 
-# Observations from feature distributions:
+# Spam emails have higher word_freq_free values than ham emails, showing that
+# spam messages often use words like "free" to attract attention.
 #
-# word_freq_free:
-# Spam emails often contain the word "free".
+# Spam emails have more exclamation marks than ham emails, showing more
+# promotional or emotional language.
 #
-# char_freq_!:
-# Spam emails often use more exclamation marks.
-#
-# capital_run_length_total:
-# Spam emails often contain longer capital letter sequences.
+# Spam emails have longer capital letter runs than ham emails, showing that
+# spam messages use uppercase words more often for emphasis.
 
 
 # Task 2: Prepare Your Data
@@ -211,8 +209,10 @@ tree_pred = tree_final.predict(X_test)
 print("Tree Accuracy:", accuracy_score(y_test, tree_pred))
 print(classification_report(y_test, tree_pred))
 
-# Based on the comparison above, max_depth=10 gave the best balance
-# between training and test accuracy, so it was selected as the final model.
+# Different max_depth values were tested. max_depth=10 was selected because it
+# gave good test accuracy with less overfitting.
+# The Decision Tree performed better than KNN. Scaling is important for KNN
+# because it uses distance, but Decision Trees do not need scaling.
 
 # Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -272,14 +272,12 @@ log_pred_pca = log_reg_pca.predict(X_test_pca)
 print("Logistic Regression PCA Accuracy:", accuracy_score(y_test, log_pred_pca))
 print(classification_report(y_test, log_pred_pca))
 
-# Model comparison:
-#
-# Random Forest performed best because it can learn complex patterns.
-# KNN performed better after scaling because it uses distance calculations.
-# PCA reduced the number of features but did not improve model performance.
-# Logistic Regression worked better with scaled data than PCA data.
-# Precision and recall are important because false positives can mark
-# important emails as spam.
+# Random Forest performed best because it learned complex patterns in the data.
+# KNN improved after scaling because it uses distance calculations.
+# PCA reduced the number of features but did not improve performance.
+# Logistic Regression performed better with scaled data than PCA data.
+# Accuracy is not the only important metric for spam detection. 
+# Precision, recall, and F1-score are also important.
 
 # Confusion matrix for best model
 disp = ConfusionMatrixDisplay.from_predictions(y_test, rf_pred)
@@ -348,11 +346,11 @@ print("Logistic Regression PCA")
 print("Mean:", log_reg_pca_cv.mean())
 print("std:", log_reg_pca_cv.std())
 
-# Random Forest had the best average accuracy across folds.
-# This means it performed consistently well.
-
-# Similar cross-validation and test results increase confidence
-# that the model is reliable.
+# Cross-validation comparison:
+# Random Forest had the highest average accuracy across folds.
+# The model with the lowest standard deviation is the most stable because
+# its results changed less between folds.
+# Random Forest performed well and was consistent.
 
 # Task 5: Building a Prediction Pipeline
 
@@ -381,11 +379,10 @@ log_pipline_pred = log_pipeline.predict(X_test)
 print("Logistic Regression Pipeline")
 print(classification_report(y_test, log_pipline_pred))
 
-# Random Forest does not need scaling, so the pipeline only contains the model.
-
-# Logistic Regression uses StandardScaler because it works better
-# when features have similar scales.
-
-# Pipelines combine steps together and help prevent data leakage.
+# Pipeline comparison:
+# The pipelines have different structures because Random Forest does not need
+# scaling, while Logistic Regression uses StandardScaler.
+# Pipelines combine preprocessing and the model into one workflow.
+# They help prevent data leakage and make the model easier to save and reuse.
 
 
