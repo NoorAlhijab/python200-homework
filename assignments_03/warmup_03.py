@@ -128,7 +128,7 @@ c_values = [0.01, 1.0, 100]
 for c in c_values:
     model = OneVsRestClassifier(LogisticRegression(C=c, max_iter=1000, solver='liblinear'))
     model.fit(X_train_scaled, y_train)
-    coef_sum = np.abs(np.concatenate([est.coef_ for est in model.estimators_])).sum()
+    coef_sum = np.abs(model.coef_).sum()
     print(f"C={c}, Total Coefficient Magnitude={coef_sum:.3f}")
 # As C increases, the total coefficient magnitude increases.
 # This shows that larger C means weaker regularization, allowing larger coefficients.
@@ -150,6 +150,7 @@ for digit in range(10):
    ax[digit].set_title(f"Digit {y_digits[idx]}")
    # Remove axis numbers
    ax[digit].axis('off')
+plt.suptitle("Sample Digits 0-9")
 plt.tight_layout()   
 plt.savefig("assignments_03/outputs/sample_digits.png")
 plt.close()

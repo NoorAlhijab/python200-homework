@@ -146,6 +146,8 @@ pca.fit(X_train_scaled)
 cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
 plt.figure(figsize=(8, 5))
 plt.plot(cumulative_variance)
+plt.axhline(y=0.90, color="red", linestyle="--", label="90%")
+plt.legend()
 plt.title("PCA cumulative explained variance")
 plt.xlabel("Number of Components")
 plt.ylabel("cumulative explained variance")
@@ -202,6 +204,9 @@ for depth in max_depth_values:
     print("Train Accuracy:", tree.score(X_train, y_train))
     print("Test Accuracy:", tree.score(X_test, y_test))
 
+    tree_pred = tree.predict(X_test)
+    print(classification_report(y_test, tree_pred))
+
 # Choose depth 
 tree_final = DecisionTreeClassifier(max_depth=10, random_state=42)
 tree_final.fit(X_train, y_train)
@@ -209,10 +214,8 @@ tree_pred = tree_final.predict(X_test)
 print("Tree Accuracy:", accuracy_score(y_test, tree_pred))
 print(classification_report(y_test, tree_pred))
 
-# Different max_depth values were tested. max_depth=10 was selected because it
-# gave good test accuracy with less overfitting.
-# The Decision Tree performed better than KNN. Scaling is important for KNN
-# because it uses distance, but Decision Trees do not need scaling.
+# max_depth=10 was chosen because it gave a good balance between
+# training and test accuracy.
 
 # Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
