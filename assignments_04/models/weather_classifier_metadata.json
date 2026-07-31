@@ -1,0 +1,27 @@
+{
+  "python_version": "3.13.12 (tags/v3.13.12:1cbe481, Feb  3 2026, 18:22:25) [MSC v.1944 64 bit (AMD64)]",
+  "sklearn_version": "1.9.0",
+  "features": [
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "precipitation_sum",
+    "wind_speed_10m_max"
+  ],
+  "label": "good_running",
+  "best_params": {
+    "model__C": 1
+  },
+  "test_auc": 0.6975,
+  "trained_on": "2023 Open-Meteo data",
+  "city": {
+    "name": "Washington, DC",
+    "latitude": 38.9,
+    "longitude": -77.04
+  },
+  "label_thresholds": {
+    "temperature_2m_max": "7-26\u00b0C",
+    "temperature_2m_min": ">= 0\u00b0C",
+    "precipitation_sum": "< 3.0 mm",
+    "wind_speed_10m_max": "< 30 km/h"
+  }
+}
