@@ -21,7 +21,6 @@ from sklearn.metrics import (
     classification_report
 )
 
-
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 COLUMN_NAMES = [
@@ -275,13 +274,9 @@ print(classification_report(y_test, log_pred_pca))
 # Model comparison:
 #
 # Random Forest performed best because it can learn complex patterns.
-#
 # KNN performed better after scaling because it uses distance calculations.
-#
 # PCA reduced the number of features but did not improve model performance.
-#
 # Logistic Regression worked better with scaled data than PCA data.
-#
 # Precision and recall are important because false positives can mark
 # important emails as spam.
 
@@ -354,7 +349,7 @@ print("std:", log_reg_pca_cv.std())
 
 # Random Forest had the best average accuracy across folds.
 # This means it performed consistently well.
-#
+
 # Similar cross-validation and test results increase confidence
 # that the model is reliable.
 
@@ -384,10 +379,10 @@ print("Logistic Regression Pipeline")
 print(classification_report(y_test, log_pipline_pred))
 
 # Random Forest does not need scaling, so the pipeline only contains the model.
-#
+
 # Logistic Regression uses StandardScaler because it works better
 # when features have similar scales.
-#
+
 # Pipelines combine steps together and help prevent data leakage.
 
 
