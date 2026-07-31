@@ -368,11 +368,11 @@ print(classification_report(y_test, rf_pipeline_pred))
 # Logistic Regression Pipline
 log_pipeline = Pipeline([
     ("scaler", StandardScaler()), 
-    ("classifier", LogisticRegression(
+    ("classifier",OneVsRestClassifier(LogisticRegression(
         C=1.0, 
         max_iter=1000, 
         solver='liblinear'
-        ))
+        )))
     ])
 log_pipeline.fit(X_train, y_train)
 log_pipline_pred = log_pipeline.predict(X_test)

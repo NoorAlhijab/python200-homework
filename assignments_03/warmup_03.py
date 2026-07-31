@@ -128,11 +128,7 @@ c_values = [0.01, 1.0, 100]
 for c in c_values:
     model = OneVsRestClassifier(LogisticRegression(C=c, max_iter=1000, solver='liblinear'))
     model.fit(X_train_scaled, y_train)
-    # Sum coefficients from all OneVsRest Logistic Regression models
-    coef_sum = sum(
-        np.abs(estimator.coef_).sum()
-        for estimator in model.estimators_
-    )
+    coef_sum = np.abs(np.concatenate([est.coef_ for est in model.estimators_])).sum()
     print(f"C={c}, Total Coefficient Magnitude={coef_sum:.3f}")
 # As C increases, the total coefficient magnitude increases.
 # This shows that larger C means weaker regularization, allowing larger coefficients.
