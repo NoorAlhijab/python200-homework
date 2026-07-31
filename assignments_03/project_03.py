@@ -211,8 +211,8 @@ tree_pred = tree_final.predict(X_test)
 print("Tree Accuracy:", accuracy_score(y_test, tree_pred))
 print(classification_report(y_test, tree_pred))
 
-# I chose max_depth=10 because it balances training and test accuracy.
-# Very deep trees can overfit, while small trees can miss patterns.
+# Based on the comparison above, max_depth=10 gave the best balance
+# between training and test accuracy, so it was selected as the final model.
 
 # Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -357,6 +357,8 @@ print("std:", log_reg_pca_cv.std())
 # Task 5: Building a Prediction Pipeline
 
 # Random Forest pipeline 
+# Tree-based models do not require feature scaling,
+# so this pipeline only includes the classifier
 rf_pipeline = Pipeline([
     ("classifier", RandomForestClassifier(n_estimators=100, random_state=42))
     ])
