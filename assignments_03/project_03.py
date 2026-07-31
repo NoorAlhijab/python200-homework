@@ -13,6 +13,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.pipeline import Pipeline
+from sklearn.multiclass import OneVsRestClassifier
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import (
@@ -256,7 +257,7 @@ plt.savefig(
 plt.close()
 
 # Logistic Regression Scaled
-log_reg_scaled = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
+log_reg_scaled = OneVsRestClassifier(LogisticRegression(C=1.0, max_iter=1000, solver='liblinear'))
 log_reg_scaled.fit(X_train_scaled, y_train)
 log_pred_scaled = log_reg_scaled.predict(X_test_scaled)
 
@@ -264,7 +265,7 @@ print("Logistic Regression Scaled Accuracy:", accuracy_score(y_test, log_pred_sc
 print(classification_report(y_test, log_pred_scaled))
 
 # Logistic Regression PCA
-log_reg_pca = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
+log_reg_pca = OneVsRestClassifier(LogisticRegression(C=1.0, max_iter=1000, solver='liblinear'))
 log_reg_pca.fit(X_train_pca, y_train)
 log_pred_pca = log_reg_pca.predict(X_test_pca)
 
