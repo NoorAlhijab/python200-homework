@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -125,9 +126,9 @@ print(classification_report(y_test, tree_pred))
 c_values = [0.01, 1.0, 100]
 
 for c in c_values:
-    model = LogisticRegression(C=c, max_iter=1000, solver='liblinear')
+    model =OneVsRestClassifier(LogisticRegression(C=c, max_iter=1000, solver='liblinear'))
     model.fit(X_train_scaled, y_train)
-    coef_sum = np.abs(model.coef_).sum()
+    coef_sum = np.abs(np.concatenate([est.coef_ for est in model.estimators_])).sum()
     print(f"C={c}, Total Coefficient Magnitude={coef_sum:.3f}")
 # As C increases, the total coefficient magnitude increases.
 # This shows that larger C means weaker regularization, allowing larger coefficients.
@@ -213,7 +214,7 @@ for row, n in enumerate(n_values, start=1):
         ax[row, col].imshow(reconstructed, cmap="gray_r")
         ax[row, col].axis("off")
     ax[row, 0].set_ylabel(f"n={n}", fontsize=12)
-
+fig.suptitle("Original Images and PCA Reconstructions")
 plt.tight_layout()
 plt.savefig("assignments_03/outputs/pca_reconstructions.png", bbox_inches="tight")
 plt.close()
