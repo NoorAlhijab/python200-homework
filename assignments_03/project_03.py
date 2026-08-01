@@ -13,7 +13,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.pipeline import Pipeline
-from sklearn.multiclass import OneVsRestClassifier
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import (
@@ -214,8 +213,8 @@ tree_pred = tree_final.predict(X_test)
 print("Tree Accuracy:", accuracy_score(y_test, tree_pred))
 print(classification_report(y_test, tree_pred))
 
-# max_depth=10 was chosen because it gave a good balance between
-# training and test accuracy.
+# max_depth=10 was chosen because it had the best balance
+# between training accuracy and test accuracy.
 
 # Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -260,7 +259,7 @@ plt.savefig(
 plt.close()
 
 # Logistic Regression Scaled
-log_reg_scaled = OneVsRestClassifier(LogisticRegression(C=1.0, max_iter=1000, solver='liblinear'))
+log_reg_scaled = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 log_reg_scaled.fit(X_train_scaled, y_train)
 log_pred_scaled = log_reg_scaled.predict(X_test_scaled)
 
@@ -268,7 +267,7 @@ print("Logistic Regression Scaled Accuracy:", accuracy_score(y_test, log_pred_sc
 print(classification_report(y_test, log_pred_scaled))
 
 # Logistic Regression PCA
-log_reg_pca = OneVsRestClassifier(LogisticRegression(C=1.0, max_iter=1000, solver='liblinear'))
+log_reg_pca = LogisticRegression(C=1.0, max_iter=1000, solver='liblinear')
 log_reg_pca.fit(X_train_pca, y_train)
 log_pred_pca = log_reg_pca.predict(X_test_pca)
 
@@ -297,10 +296,13 @@ false_negatives = cm[1, 0]  # Spam emails missed
 print("False Positives:", false_positives)
 print("False Negatives:", false_negatives)
 
+print("Best Model: Random Forest")
 if false_positives > false_negatives:
-    print("More false positives than false negatives.")
+    print("Random Forest made more false positives than false negatives.")
+    print("This means more real emails were marked as spam.")
 else:
-    print("More false negatives than false positives.")
+    print("Random Forest made more false negatives than false positives.")
+    print("This means more spam emails were missed.")
 
 # False positives are important because real emails may be marked as spam.
 # False negatives mean spam emails are missed.
