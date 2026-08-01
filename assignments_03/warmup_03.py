@@ -142,12 +142,14 @@ images   = digits.images  # same data shaped as 8x8 images for plotting
 print("X_digits Shape:", X_digits.shape)
 print("Images Shape:", images.shape)
 fig, ax = plt.subplots(1, 10, figsize=(12, 2)) 
+# Display the first example found for each digit class (0-9)
 for digit in range(10):
    idx = np.where(y_digits == digit)[0][0]
    ax[digit].imshow(images[idx],  cmap='gray_r')
    ax[digit].set_title(f"Digit {y_digits[idx]}")
    # Remove axis numbers
    ax[digit].axis('off')
+plt.suptitle("Sample Digits 0-9")
 plt.tight_layout()   
 plt.savefig("assignments_03/outputs/sample_digits.png")
 plt.close()
@@ -200,7 +202,7 @@ fig, ax = plt.subplots(5, 5, figsize=(10, 10))
 # Original images
 for col, sample_idx in enumerate(sample_indices):
     ax[0, col].imshow(images[sample_idx], cmap="gray_r")
-    ax[0, col].set_title(f"Digit {y_digits[sample_idx]}")
+    ax[0, col].set_title(f"Original\nDigit {y_digits[sample_idx]}")
     ax[0, col].axis("off")
 ax[0, 0].set_ylabel ("Original", fontsize=12)
 

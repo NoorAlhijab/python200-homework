@@ -21,7 +21,6 @@ from sklearn.metrics import (
     classification_report
 )
 
-
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 COLUMN_NAMES = [
@@ -114,16 +113,14 @@ for feature in features:
     plt.savefig(f"assignments_03/outputs/{feature}_boxplot.png")
     plt.close()
 
-# Observations from feature distributions:
+# Spam emails have higher word_freq_free values than ham emails, showing that
+# spam messages often use words like "free" to attract attention.
 #
-# word_freq_free:
-# Spam emails often contain the word "free".
+# Spam emails have more exclamation marks than ham emails, showing more
+# promotional or emotional language.
 #
-# char_freq_!:
-# Spam emails often use more exclamation marks.
-#
-# capital_run_length_total:
-# Spam emails often contain longer capital letter sequences.
+# Spam emails have longer capital letter runs than ham emails, showing that
+# spam messages use uppercase words more often for emphasis.
 
 
 # Task 2: Prepare Your Data
@@ -148,6 +145,8 @@ pca.fit(X_train_scaled)
 cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
 plt.figure(figsize=(8, 5))
 plt.plot(cumulative_variance)
+plt.axhline(y=0.90, color="red", linestyle="--", label="90%")
+plt.legend()
 plt.title("PCA cumulative explained variance")
 plt.xlabel("Number of Components")
 plt.ylabel("cumulative explained variance")
@@ -204,6 +203,9 @@ for depth in max_depth_values:
     print("Train Accuracy:", tree.score(X_train, y_train))
     print("Test Accuracy:", tree.score(X_test, y_test))
 
+    tree_pred = tree.predict(X_test)
+    print(classification_report(y_test, tree_pred))
+
 # Choose depth 
 tree_final = DecisionTreeClassifier(max_depth=10, random_state=42)
 tree_final.fit(X_train, y_train)
@@ -211,8 +213,8 @@ tree_pred = tree_final.predict(X_test)
 print("Tree Accuracy:", accuracy_score(y_test, tree_pred))
 print(classification_report(y_test, tree_pred))
 
-# I chose max_depth=10 because it balances training and test accuracy.
-# Very deep trees can overfit, while small trees can miss patterns.
+# max_depth=10 was chosen because it had the best balance
+# between training accuracy and test accuracy.
 
 # Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -272,18 +274,12 @@ log_pred_pca = log_reg_pca.predict(X_test_pca)
 print("Logistic Regression PCA Accuracy:", accuracy_score(y_test, log_pred_pca))
 print(classification_report(y_test, log_pred_pca))
 
-# Model comparison:
-#
-# Random Forest performed best because it can learn complex patterns.
-#
-# KNN performed better after scaling because it uses distance calculations.
-#
-# PCA reduced the number of features but did not improve model performance.
-#
-# Logistic Regression worked better with scaled data than PCA data.
-#
-# Precision and recall are important because false positives can mark
-# important emails as spam.
+# Random Forest performed best because it learned complex patterns in the data.
+# KNN improved after scaling because it uses distance calculations.
+# PCA reduced the number of features but did not improve performance.
+# Logistic Regression performed better with scaled data than PCA data.
+# Accuracy is not the only important metric for spam detection. 
+# Precision, recall, and F1-score are also important.
 
 # Confusion matrix for best model
 disp = ConfusionMatrixDisplay.from_predictions(y_test, rf_pred)
@@ -300,10 +296,13 @@ false_negatives = cm[1, 0]  # Spam emails missed
 print("False Positives:", false_positives)
 print("False Negatives:", false_negatives)
 
+print("Best Model: Random Forest")
 if false_positives > false_negatives:
-    print("More false positives than false negatives.")
+    print("Random Forest made more false positives than false negatives.")
+    print("This means more real emails were marked as spam.")
 else:
-    print("More false negatives than false positives.")
+    print("Random Forest made more false negatives than false positives.")
+    print("This means more spam emails were missed.")
 
 # False positives are important because real emails may be marked as spam.
 # False negatives mean spam emails are missed.
@@ -352,15 +351,17 @@ print("Logistic Regression PCA")
 print("Mean:", log_reg_pca_cv.mean())
 print("std:", log_reg_pca_cv.std())
 
-# Random Forest had the best average accuracy across folds.
-# This means it performed consistently well.
-#
-# Similar cross-validation and test results increase confidence
-# that the model is reliable.
+# Cross-validation comparison:
+# Random Forest had the highest average accuracy across folds.
+# The model with the lowest standard deviation is the most stable because
+# its results changed less between folds.
+# Random Forest performed well and was consistent.
 
 # Task 5: Building a Prediction Pipeline
 
 # Random Forest pipeline 
+# Tree-based models do not require feature scaling,
+# so this pipeline only includes the classifier
 rf_pipeline = Pipeline([
     ("classifier", RandomForestClassifier(n_estimators=100, random_state=42))
     ])
@@ -372,22 +373,21 @@ print(classification_report(y_test, rf_pipeline_pred))
 # Logistic Regression Pipline
 log_pipeline = Pipeline([
     ("scaler", StandardScaler()), 
-    ("classifier", LogisticRegression(
+    ("classifier",OneVsRestClassifier(LogisticRegression(
         C=1.0, 
         max_iter=1000, 
         solver='liblinear'
-        ))
+        )))
     ])
 log_pipeline.fit(X_train, y_train)
 log_pipline_pred = log_pipeline.predict(X_test)
 print("Logistic Regression Pipeline")
 print(classification_report(y_test, log_pipline_pred))
 
-# Random Forest does not need scaling, so the pipeline only contains the model.
-#
-# Logistic Regression uses StandardScaler because it works better
-# when features have similar scales.
-#
-# Pipelines combine steps together and help prevent data leakage.
+# Pipeline comparison:
+# The pipelines have different structures because Random Forest does not need
+# scaling, while Logistic Regression uses StandardScaler.
+# Pipelines combine preprocessing and the model into one workflow.
+# They help prevent data leakage and make the model easier to save and reuse.
 
 
