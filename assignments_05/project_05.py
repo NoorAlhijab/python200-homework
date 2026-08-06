@@ -79,8 +79,12 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     - "original"
     - "improved"
 
-    Bullet points:
+    ---BEGIN BULLET POINTS---
+
     {bullet_text}
+
+    ---END BULLET POINTS---
+
     """
 
     messages = [
@@ -236,10 +240,9 @@ def run_chatbot():
                 print("Original : ", item['original'])
                 print("Improved: ", item['improved'])
                 print()
-            messages.append({"role": "user","content": "\n".join(raw_bullets)})
-            messages.append({"role": "assistant","content": str(results)})
+            messages.append({"role": "user", "content": "\n".join(raw_bullets)})
+            messages.append({"role": "assistant", "content": json.dumps(results)})
                 
-
         # 6. Check if the user wants a cover letter
         elif "cover letter" in user_input.lower():
             job_title = input("Job Application Helper: What is the job title? ").strip()
@@ -271,7 +274,10 @@ if __name__ == "__main__":
 
 # I chose the comment-block format for my ethics reflection.
 #
-# The training data may lead to biased advice because it may not include all perspectives.
-# It could overrepresent certain communication styles, industries, or cultural backgrounds.
-# This could cause the chatbot to favor certain resume formats or career advice that may not fit every job seeker.
-# Users should review and personalize AI-generated content to make sure it accurately represents their own experience.
+# AI-generated job application advice may contain bias because the training data may not represent
+# all industries, backgrounds, or communication styles equally. This could cause the chatbot to
+# recommend certain resume formats or career advice that may not be suitable for every job seeker.
+# Another limitation is that AI does not fully understand a person's complete career story, so users
+# should review, personalize, and edit the generated content before submitting applications.
+# Users should also avoid sharing sensitive personal information and use AI as a helpful tool rather
+# than relying on it as the only source of career guidance.
