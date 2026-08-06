@@ -240,7 +240,7 @@ def run_chatbot():
                 print("Original : ", item['original'])
                 print("Improved: ", item['improved'])
                 print()
-            messages.append({"role": "user", "content": "\n".join(raw_bullets)})
+            messages.append({"role": "user", "content": f"Rewrite these resume bullet points:\n{'\n'.join(raw_bullets)}"})
             messages.append({"role": "assistant", "content": json.dumps(results)})
                 
         # 6. Check if the user wants a cover letter
@@ -267,6 +267,11 @@ def run_chatbot():
         
 if __name__ == "__main__":
     run_chatbot()
+
+# Chatbot memory test:
+# I tested the chatbot by asking more than one question.
+# It remembered the earlier conversation because the user and assistant
+# messages are saved in the messages list.    
 
 # ==========================
 # Task 6: Ethics Reflection

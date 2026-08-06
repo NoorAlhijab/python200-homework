@@ -345,9 +345,8 @@ print("No Instructions Response:\n", response.choices[0].message.content)
 
 # Ollama output:
 """
-A large language model is an AI system that can understand and generate human language.
-It learns patterns from large amounts of text data and can perform tasks such as answering
-questions, generating text, summarizing information, and helping users complete tasks.
+A large language model is an AI system trained on vast amounts of text to understand and generate human-like language.
+It uses patterns learned during training to predict and produce coherent responses to user prompts.
 """
 
 prompt = "Explain what a large language model is in two sentences."
@@ -365,10 +364,10 @@ OpenAI output:
  based on the context of the input it receives.
 
 """
-# Both responses correctly explain that large language models learn from large amounts of data
-# and generate human-like text.
-# The difference between the two outputs is that the Ollama output is more concise and simplified,
-# while the OpenAI output is more detailed and technical.
-# Ollama advantage: Running the model locally provides more privacy because the data stays on the computer.
-# Ollama disadvantage: Local models may require more hardware resources and may not be as powerful as larger cloud models.
+# Both responses explain what a large language model is.
+# The Ollama response is shorter and easier to read, while the OpenAI response
+# gives a more detailed explanation and mentions deep learning.
+# An advantage of Ollama is that it runs locally, which provides better privacy.
+# A disadvantage is that local models may be less powerful than cloud models
+# and depend on your computer's hardware.
 
