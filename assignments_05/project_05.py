@@ -99,7 +99,8 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     except json.JSONDecodeError:
         print("Could not parse JSON response. Raw response:")
         print(response)
-        return [{"original": b, "improved": "Unable to rewrite"} for b in bullets]
+        raise
+
     return rewritten_bullets
 
 # These bullets are weak because they are too general
@@ -264,11 +265,12 @@ def run_chatbot():
         
 if __name__ == "__main__":
     run_chatbot()
-
+    
 # Chatbot memory test:
-# I tested the chatbot by asking more than one question.
-# It remembered the earlier conversation because the user and assistant
-# messages are saved in the messages list.    
+# I tested the chatbot by asking multiple questions in the same conversation.
+# For example, after creating a cover letter, I asked a follow-up question
+# about the same background information. The chatbot remembered previous
+# details because user and assistant messages are stored in the messages list.   
 
 # ==========================
 # Task 6: Ethics Reflection
