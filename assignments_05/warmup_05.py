@@ -1,5 +1,8 @@
 # --- Completions API ---
+# ==========================
 # API Question 1
+# ==========================
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -11,12 +14,20 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "What is one thing that makes Python a good language for beginners?"}]
 )
 
-print("Response\n", response.choices[0].message.content)
-print("Model:/n", response.model)
-# Print total number of tokens used
-print("Total numeber of tokens:\n", response.usage.total_tokens)
+print("Response:")
+print(response.choices[0].message.content)
 
-# API Question 2
+print("\nModel:")
+print(response.model)
+
+# Print total number of tokens used
+print("\nTotal number of tokens:")
+print(response.usage.total_tokens)
+
+# ==========================
+# API Question 2: Temperature
+# ==========================
+
 prompt = "Suggest a creative name for a data engineering consultancy."
 temperatures = [0, 0.7, 1.5]
 for temp in temperatures:
@@ -26,7 +37,7 @@ for temp in temperatures:
         temperature=temp
     )
     print("Temperature:\n", temp)
-    print("response:\n", response.choices[0].message.content)
+    print("Response:\n", response.choices[0].message.content)
 
  
  
@@ -34,8 +45,9 @@ for temp in temperatures:
 # Temperature 0 gave the most consistent answer, while temperature 1.5 gave the most varied answer.
 # I would use temperature = 0 if I wanted consistent and reproducible output.
 
-
+# ==========================
 # API Question 3
+# ==========================
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
@@ -46,8 +58,10 @@ response = client.chat.completions.create(
 for i, choice in enumerate(response.choices, start=1):
     print("Three completions:\n", f"Completion {i}:\n", choice.message.content)
 
-
+# ==========================
 # API Question 4
+# ==========================
+
 response = client.chat.completions.create(
     model="gpt-4o-mini", 
     messages=[{"role": "user", "content": "Explain how neural networks work."}],
@@ -61,7 +75,10 @@ print("Response", response.choices[0].message.content)
 # In real applications, max_tokens can help control API costs and keep responses short.
 
 # --- System Messages and Personas ---
+# ==========================
 # System Question 1
+# ==========================
+
 messages = [
     {"role": "system", "content": "You are a patient, encouraging Python tutor. You always explain things simply and end with a word of encouragement."},
     {"role": "user", "content": "I don't understand what a list comprehension is."}
@@ -90,7 +107,11 @@ print("Sarcastic Python Tutor Response:\n", response_2.choices[0].message.conten
 # The first response was friendly, simple, and encouraging.
 # The second response was more sarcastic and humorous.
 
+
+# ==========================
 # System Question 2
+# ==========================
+
 messages = [
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "My name is Jordan and I'm learning Python."},
@@ -108,7 +129,11 @@ print("Response:\n", response.choices[0].message.content)
 # messages list.
 
 # --- Prompt Engineering ---
+
+# ==========================
 # Prompt Question 1 — Zero-Shot
+# ==========================
+
 reviews = [
     "The onboarding process was smooth and the team was welcoming.",
     "The software crashes constantly and support never responds.",
@@ -116,7 +141,7 @@ reviews = [
 ]
 
 prompt = f"""
-Analyze the sentiment of the following customer reviews and classify each as Positive, Negative, or Mixed.
+Analyze the sentiment of the following customer reviews and classify each as positive, negative, or mixed.
 Print each result labeled with the review number and the sentiment classification.
 
 Reviews:
@@ -131,7 +156,10 @@ response = client.chat.completions.create(
 
 print("Zero-Shot Sentiment Analysis:\n", response.choices[0].message.content)
 
+# ==========================
 # Prompt Question 2 — One-Shot
+# ==========================
+
 reviews = [
     "The onboarding process was smooth and the team was welcoming.",
     "The software crashes constantly and support never responds.",
@@ -139,12 +167,12 @@ reviews = [
 ]
 
 prompt = f"""
-Analyze the sentiment of the following customer reviews and classify each as Positive, Negative, or Mixed.
+Analyze the sentiment of the following customer reviews and classify each as positive, negative, or mixed.
 Print each result labeled with the review number and the sentiment classification.
 
 Example:
 Review: "Fast shipping but the item arrived damaged."
-Sentiment: Mixed
+Sentiment: mixed
 
 Reviews:
 1. {reviews[0]} 
@@ -161,7 +189,10 @@ print("One-Shot Sentiment Analysis:\n", response.choices[0].message.content)
 # Adding one example in the prompt improved the output format and consistency.
 # The sentiment classifications stayed the same, but the model followed the Review/Sentiment format.
 
+# ==========================
 # Prompt Question 3 — Few-Shot
+# ==========================
+
 reviews = [
     "The onboarding process was smooth and the team was welcoming.",
     "The software crashes constantly and support never responds.",
@@ -169,19 +200,19 @@ reviews = [
 ]
 
 prompt = f"""
-Analyze the sentiment of the following customer reviews and classify each as Positive, Negative, or Mixed.
+Analyze the sentiment of the following customer reviews and classify each as positive, negative, or mixed.
 Print each result labeled with the review number and the sentiment classification.
 
 Examples:
 
 Review: "The product works perfectly and the customer service was excellent."
-Sentiment: Positive
+Sentiment: positive
 
 Review: "The app is slow, full of bugs, and very frustrating to use."
-Sentiment: Negative
+Sentiment: negative
 
 Review: "Fast shipping but the item arrived damaged."
-Sentiment: Mixed
+Sentiment: mixed
 
 Reviews:
 1. {reviews[0]} 
@@ -199,7 +230,10 @@ print("Few-Shot Sentiment Analysis:\n", response.choices[0].message.content)
 # One-shot is useful when you want to guide the output format with one example.
 # Few-shot is useful when you need more consistency or when the task has specific patterns that examples can clarify.
 
+# ==========================
 # Prompt Question 4 — Chain of Thought
+# ==========================
+
 prompt = """
 Solve the following math problem.
 
@@ -218,10 +252,13 @@ response = client.chat.completions.create(
 
 print("Chain of Thought Response:\n", response.choices[0].message.content)
 
-# Step-by-step reasoning improves accuracy by breaking the problem into smaller,
-# easier steps and reducing calculation errors
+# The response was easier to follow because the problem was broken
+# into smaller calculation steps before providing the final answer.
 
+# ==========================
 # Prompt Question 5 — Structured Output
+# ==========================
+
 import json
 
 review = "I've been using this tool for three months. It handles large datasets well, \
@@ -258,7 +295,10 @@ except json.JSONDecodeError:
     print("Error: response was not valid JSON")
     print("Raw response was:\n", raw_response)
 
+# ==========================
 # Prompt Question 6 — Delimiters
+# ==========================
+
 user_text = "First boil a pot of water. Once boiling, add a handful of salt and the \
 pasta. Cook for 8-10 minutes until al dente. Drain and toss with your sauce of choice."
 
@@ -294,13 +334,23 @@ print("No Instructions Response:\n", response.choices[0].message.content)
 # Delimiters clearly separate the user's text from the instructions.
 # This helps prevent the model from confusing the prompt with the input text.
 
-# --- Local Models with Ollama ---
-# Ollama Question 1
-"""
-Ollama output:
-A large language model is an AI system designed to understand and generate human language, trained on massive datasets to learn patterns and improve accuracy. It can perform 
-tasks like writing or answering questions with high-quality output, making it versatile for various applications.
 
+# --- Local Models with Ollama ---
+
+# ==========================
+# Ollama Question 1
+# ==========================
+
+"""
+Ollama terminal output:
+
+> ollama run llama3.2
+
+>>> Explain what a large language model is in two sentences.
+
+A large language model is an AI system that can understand
+and generate human language. It learns patterns from large
+amounts of text data to answer questions and create content.
 """
 
 prompt = "Explain what a large language model is in two sentences."

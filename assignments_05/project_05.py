@@ -1,4 +1,7 @@
+# ==========================
 # Task 1: Setup and System Prompt
+# ==========================
+
 from unittest import result
 
 from dotenv import load_dotenv
@@ -49,7 +52,10 @@ messages = [
 # print("Raw response:")
 # print(repr(response))
 
+# ==========================
 # Task 2: Bullet Point Rewriter
+# ==========================
+
 import json
 
 def rewrite_bullets(bullets: list[str]) -> list[dict]:
@@ -74,9 +80,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     - "improved"
 
     Bullet points:
-    ```
     {bullet_text}
-    ```
     """
 
     messages = [
@@ -84,7 +88,14 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     ]
 
     response = get_completion(messages)
-    rewritten_bullets = json.loads(response)
+
+    try:
+        rewritten_bullets = json.loads(response)
+
+    except json.JSONDecodeError:
+        print("Could not parse JSON response. Raw response:")
+        print(response)
+        return []
 
     for item in rewritten_bullets:
         print(f"Original : {item['original']}")
@@ -92,19 +103,12 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
 
     return rewritten_bullets
 
-# Test function
-bullets = [
-    "Helped customers with their problems",
-    "Made reports for the management team",
-    "Worked with a team to finish the project on time"
-]
-
-results = rewrite_bullets(bullets)
-
 # These bullets are weak because they are too general
 # The model improved them by using stronger action verbs and clearer wording
 
+# ==========================
 # Task 3: Cover Letter Generator
+# ==========================
 
 def generate_cover_letter(job_title: str, background: str) -> str:
     prompt = f"""
@@ -154,7 +158,10 @@ print(cover_letter)
 # Few-shot prompting helps control the style, structure, and level of detail
 # in the generated cover letter.
 
+# ==========================
 # Task 4: Moderation Check
+# ==========================
+
 def is_safe(text: str) -> bool:
     result = client.moderations.create(
         model="omni-moderation-latest",
@@ -162,9 +169,11 @@ def is_safe(text: str) -> bool:
     )
     flagged = result.results[0].flagged
     if flagged:
-        print("Your message was flagged. Please rephrase your input and try again.")
+        print("Your message was flagged. Please rephrase your input.")
         return False
-    return True
+    else:
+        print("Message is safe.")
+        return True
 
 # Test safe input
 safe_test = "Help me improve my resume for a Junior Data Analyst position."
@@ -174,8 +183,10 @@ print("Safe test result:", is_safe(safe_test))  # Expected: True
 flagged_test = "I want to hack into computer systems to steal data." # Expected to be flagged
 print("Flagged test result:", is_safe(flagged_test))  # Expected: False
 
-
+# ==========================
 # Task 5: The Chatbot Loop
+# ==========================
+
 def run_chatbot():
     # 1. Initialize conversation history with your system prompt
     messages = [
@@ -225,6 +236,8 @@ def run_chatbot():
                 print("Original : ", item['original'])
                 print("Improved: ", item['improved'])
                 print()
+            messages.append({"role": "user","content": "\n".join(raw_bullets)})
+            messages.append({"role": "assistant","content": str(results)})
                 
 
         # 6. Check if the user wants a cover letter
@@ -234,6 +247,8 @@ def run_chatbot():
             result = generate_cover_letter(job_title, background)
             print("\nJob Application Helper:")
             print(result)
+            messages.append({"role": "user","content": f"Create a cover letter for {job_title}. Background: {background}"})
+            messages.append({"role": "assistant","content": result})
 
         # 7. Otherwise, handle it as a regular chat turn
         else:
@@ -246,23 +261,17 @@ def run_chatbot():
             response = get_completion(messages)
             print("Job Application Helper:\n", response)
             messages.append({"role": "assistant", "content": response})
-
-
+        
 if __name__ == "__main__":
     run_chatbot()
 
+# ==========================
 # Task 6: Ethics Reflection
+# ==========================
 
-# 1. Your bot was trained on text written by and about certain kinds of people.
-# How might this produce biased advice? Could it favor certain communication styles,
-# industries, or cultural backgrounds?
+# I chose the comment-block format for my ethics reflection.
 #
 # The training data may lead to biased advice because it may not include all perspectives.
 # It could overrepresent certain communication styles, industries, or cultural backgrounds.
-
-# 2. What could go wrong if a job-seeker submitted the bot's output directly —
-# without reviewing it — to a real employer?
-#
-# This may include inaccurate or misleading information because the model can generate
-# hallucinated content that confuses the employer or misrepresents the job-seeker's
-# experience, skills, or qualifications.
+# This could cause the chatbot to favor certain resume formats or career advice that may not fit every job seeker.
+# Users should review and personalize AI-generated content to make sure it accurately represents their own experience.
