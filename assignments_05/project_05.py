@@ -99,12 +99,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     except json.JSONDecodeError:
         print("Could not parse JSON response. Raw response:")
         print(response)
-        return []
-
-    for item in rewritten_bullets:
-        print(f"Original : {item['original']}")
-        print(f"Improved: {item['improved']}\n")
-
+        return [{"original": b, "improved": "Unable to rewrite"} for b in bullets]
     return rewritten_bullets
 
 # These bullets are weak because they are too general
@@ -241,7 +236,8 @@ def run_chatbot():
                 print("Improved: ", item['improved'])
                 print()
             messages.append({"role": "user", "content": f"Rewrite these resume bullet points:\n{'\n'.join(raw_bullets)}"})
-            messages.append({"role": "assistant", "content": json.dumps(results)})
+            assistant_reply = "\n".join([f"Original: {item['original']}\nImproved: {item['improved']}" for item in results])
+            messages.append({"role": "assistant", "content": assistant_reply})
                 
         # 6. Check if the user wants a cover letter
         elif "cover letter" in user_input.lower():
@@ -262,7 +258,8 @@ def run_chatbot():
             # - Append the reply to `messages` as an assistant message
             messages.append({"role": "user", "content": user_input})
             response = get_completion(messages)
-            print("Job Application Helper:\n", response)
+            print("\nJob Application Helper:")
+            print(response)
             messages.append({"role": "assistant", "content": response})
         
 if __name__ == "__main__":
@@ -279,6 +276,9 @@ if __name__ == "__main__":
 
 # I chose the comment-block format for my ethics reflection.
 #
+# Submitting AI-generated content without reviewing it could result in inaccurate
+# claims, generic statements, or missing important personal achievements that
+# negatively affect a job application.
 # AI-generated job application advice may contain bias because the training data may not represent
 # all industries, backgrounds, or communication styles equally. This could cause the chatbot to
 # recommend certain resume formats or career advice that may not be suitable for every job seeker.

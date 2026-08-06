@@ -36,8 +36,10 @@ for temp in temperatures:
         messages=[{"role": "user", "content": prompt}],
         temperature=temp
     )
-    print("Temperature:\n", temp)
-    print("Response:\n", response.choices[0].message.content)
+    print(f"\nTemperature: {temp}")
+    print("Response:")
+    print(response.choices[0].message.content)
+    print("-" * 40)
 
  
  
@@ -56,7 +58,9 @@ response = client.chat.completions.create(
     temperature=1.0
 ) 
 for i, choice in enumerate(response.choices, start=1):
-    print("Three completions:\n", f"Completion {i}:\n", choice.message.content)
+    print(f"\nCompletion {i}:")
+    print(choice.message.content)
+    print("-" * 40)
 
 # ==========================
 # API Question 4
@@ -70,9 +74,10 @@ response = client.chat.completions.create(
 
 print("Response", response.choices[0].message.content)
 
-# the response is cut off because the max_tokens parameter was set to 15, 
-# which limits the length of the output.
-# In real applications, max_tokens can help control API costs and keep responses short.
+# The response was incomplete because max_tokens was set to 15,
+# which limited the number of tokens the model could generate.
+# max_tokens is useful for controlling response length, reducing costs,
+# and preventing unnecessarily long outputs.
 
 # --- System Messages and Personas ---
 # ==========================
@@ -287,13 +292,14 @@ print("Raw Response:\n", raw_response)
 
 try:
     result = json.loads(raw_response)
-    print("Parsed JSON:\n", result)
+
     print("Sentiment:", result["sentiment"])
     print("Confidence:", result["confidence"])
     print("Reason:", result["reason"])
+
 except json.JSONDecodeError:
-    print("Error: response was not valid JSON")
-    print("Raw response was:\n", raw_response)
+    print("Raw response was not valid JSON:")
+    print(raw_response)
 
 # ==========================
 # Prompt Question 6 — Delimiters
