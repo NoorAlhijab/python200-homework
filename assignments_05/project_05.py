@@ -240,7 +240,11 @@ def run_chatbot():
             # Assistant reply stored exactly
             assistant_reply = "\n".join(
             [f"Original: {item['original']}\nImproved: {item['improved']}" for item in results]
-          )
+            )
+
+            print("\nJob Application Helper:")
+            print(assistant_reply)
+            
             messages.append({"role": "assistant", "content": assistant_reply})
                 
         # 6. Check if the user wants a cover letter

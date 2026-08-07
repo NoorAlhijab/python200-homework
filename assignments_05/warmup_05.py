@@ -348,7 +348,7 @@ print("No Instructions Response:\n", response.choices[0].message.content)
 # Ollama Question 1
 # ==========================
 
-# Ollama terminal output:
+# Ollama terminal output (copied from running Ollama locally):
 """
 >>> ollama run qwen3:0.6b
 
