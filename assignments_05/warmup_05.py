@@ -71,8 +71,8 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Explain how neural networks work."}],
     max_tokens=15
 )
-
-print("Response", response.choices[0].message.content)
+print("Response:")
+print(response.choices[0].message.content)
 
 # The response was incomplete because max_tokens was set to 15,
 # which limited the number of tokens the model could generate.
@@ -129,6 +129,7 @@ response = client.chat.completions.create(
     messages=messages
 )   
 print("Response:\n", response.choices[0].message.content)
+
 # The model knows Jordan's name because the conversation history was included
 # in the request. The API is stateless, so it only knows what we send in the
 # messages list.
@@ -231,9 +232,9 @@ response = client.chat.completions.create(
 
 print("Few-Shot Sentiment Analysis:\n", response.choices[0].message.content)
 
-# Zero-shot is useful for simple tasks when the model already understands the instructions.
-# One-shot is useful when you want to guide the output format with one example.
-# Few-shot is useful when you need more consistency or when the task has specific patterns that examples can clarify.
+# The few-shot examples produced the same sentiment classifications as the previous prompts,
+# but they made the output format more consistent and reinforced how the model should classify
+# positive, negative, and mixed reviews.
 
 # ==========================
 # Prompt Question 4 — Chain of Thought
