@@ -87,20 +87,23 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
 
     """
 
-    messages = [
-        {"role": "user", "content": prompt}
-    ]
+    messages = [{"role": "user", "content": prompt}]
 
     response = get_completion(messages)
 
     try:
         rewritten_bullets = json.loads(response)
-
     except json.JSONDecodeError:
         print("Could not parse JSON response. Raw response:")
         print(response)
-        raise
-
+        return [] # Prevents crashing
+    
+    # Side-by-side printing inside the function
+    print("\nImproved Resume Bullets:")
+    for item in rewritten_bullets:
+        print("Original :", item["original"])
+        print("Improved :", item["improved"])
+        print()
     return rewritten_bullets
 
 # These bullets are weak because they are too general
@@ -177,11 +180,11 @@ def is_safe(text: str) -> bool:
 
 # Test safe input
 safe_test = "Help me improve my resume for a Junior Data Analyst position."
-print("Safe test result:", is_safe(safe_test))  # Expected: True    
+print("Safe test expected True:", is_safe(safe_test))    
 
 # Test flagged input
 flagged_test = "I want to hack into computer systems to steal data." # Expected to be flagged
-print("Flagged test result:", is_safe(flagged_test))  # Expected: False
+print("Flagged test expected False:", is_safe(flagged_test))  
 
 # ==========================
 # Task 5: The Chatbot Loop
@@ -231,13 +234,17 @@ def run_chatbot():
                 if line:
                     raw_bullets.append(line)
             results = rewrite_bullets(raw_bullets)
-            print("\nJob Application Helper: Here are your improved bullet points:\n")
-            for item in results:
-                print("Original : ", item['original'])
-                print("Improved: ", item['improved'])
-                print()
-            messages.append({"role": "user", "content": f"Rewrite these resume bullet points:\n{'\n'.join(raw_bullets)}"})
-            assistant_reply = "\n".join([f"Original: {item['original']}\nImproved: {item['improved']}" for item in results])
+            # Append exact user input
+            messages.append({"role": "user", "content": user_input + "\n" + "\n".join(raw_bullets)})
+
+            # Assistant reply stored exactly
+            assistant_reply = "\n".join(
+            [f"Original: {item['original']}\nImproved: {item['improved']}" for item in results]
+            )
+
+            print("\nJob Application Helper:")
+            print(assistant_reply)
+            
             messages.append({"role": "assistant", "content": assistant_reply})
                 
         # 6. Check if the user wants a cover letter
@@ -247,9 +254,8 @@ def run_chatbot():
             result = generate_cover_letter(job_title, background)
             print("\nJob Application Helper:")
             print(result)
-            messages.append({"role": "user","content": f"Create a cover letter for {job_title}. Background: {background}"})
-            messages.append({"role": "assistant","content": result})
-
+            messages.append({"role": "user", "content": f"{user_input}\nJob Title: {job_title}\nBackground: {background}"})
+            messages.append({"role": "assistant", "content": result})
         # 7. Otherwise, handle it as a regular chat turn
         else:
             # YOUR CODE:
@@ -288,3 +294,5 @@ if __name__ == "__main__":
 # should review, personalize, and edit the generated content before submitting applications.
 # Users should also avoid sharing sensitive personal information and use AI as a helpful tool rather
 # than relying on it as the only source of career guidance.
+# One guardrail I would use in a real application is requiring users to review,
+# edit, and verify every AI-generated resume or cover letter before submitting it.
