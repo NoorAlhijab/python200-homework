@@ -96,7 +96,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     except json.JSONDecodeError:
         print("Could not parse JSON response. Raw response:")
         print(response)
-        return [] # Prevents crashing
+        return []
     
     # Side-by-side printing inside the function
     print("\nImproved Resume Bullets:")
@@ -234,6 +234,10 @@ def run_chatbot():
                 if line:
                     raw_bullets.append(line)
             results = rewrite_bullets(raw_bullets)
+            if not results:
+                 print("\nJob Application Helper:")
+                 print("I could not rewrite the bullets. Please try again.")
+                 continue
             # Append exact user input
             messages.append({"role": "user", "content": user_input + "\n" + "\n".join(raw_bullets)})
 
@@ -244,7 +248,7 @@ def run_chatbot():
 
             print("\nJob Application Helper:")
             print(assistant_reply)
-            
+
             messages.append({"role": "assistant", "content": assistant_reply})
                 
         # 6. Check if the user wants a cover letter
