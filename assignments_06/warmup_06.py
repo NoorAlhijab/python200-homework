@@ -48,29 +48,38 @@ else:
 
 # Correct RAG steps 
 #
-# 1. Extract text from source documents
-# 2. Split text into chunks
-# 3. Convert text chunks into embeddings
-# 4. Receive the user's query
-# 5. Embed the user's query
-# 6. Retrieve the most relevant chunks
-# 7. Inject retrieved chunks into the prompt
-# 8. Generate a response from the LLM
+# steps = [
+#     "Extract text from source documents",
+#     "Split text into chunks",
+#     "Convert text chunks into embeddings",
+#     "Receive the user's query",
+#     "Embed the user's query",
+#     "Retrieve the most relevant chunks",
+#     "Inject retrieved chunks into the prompt",
+#     "Generate a response from the LLM",
+# ]
 #
 # 1. Extract text from source documents
 # Get the text from the source documents so it can be processed.
+#
 # 2. Split text into chunks
 # Break the text into smaller chunks so the relevant information can be found.
+#
 # 3. Convert text chunks into embeddings
 # Convert each text chunk into an embedding so the meaning of the text can be compared.
+#
 # 4. Receive the user's query
 # Receive the question from the user.
+#
 # 5. Embed the user's query
 # Convert the user's question into an embedding so it can be compared with the document chunks.
+#
 # 6. Retrieve the most relevant chunks
 # Find the chunks that are most relevant to the user's question.
+#
 # 7. Inject retrieved chunks into the prompt
 # Add the relevant chunks to the prompt so the LLM has the information it needs.
+#
 # 8. Generate a response from the LLM
 # The LLM uses the user's question and the retrieved information to generate a response.
 
@@ -137,9 +146,12 @@ documents = {
 results = simple_keyword_retrieval(query, documents, verbose=True)
 print("Selected document:", results[0][0])
 
-# The result was loyalty.txt because the simple keyword search counted
-# "your" as an overlapping word. This shows that keyword retrieval
-# can select the wrong document when common words match.
+# The result was loyalty.txt, even though hours.txt is the correct document.
+# The query matched "weekends" in hours.txt and "your" in both hiring.txt
+# and loyalty.txt. All three documents had an overlap score of 1, so the
+# keyword retriever selected loyalty.txt because of the tie.
+# This shows that basic keyword retrieval can select the wrong document
+# when common words create a tie.
 
 # =====================
 # Keyword Question 2
@@ -374,10 +386,13 @@ print("Relevancy Evaluation:", relevancy_result2.score)
 # the retrieved context. A score of 0.0 means the answer is not supported.
 #
 # A relevancy score measures whether the answer addresses the question.
-# Faithfulness checks the context, while relevancy checks the question.
+# Faithfulness checks whether the response is supported by the context,
+# while relevancy checks whether the response addresses the question.
 #
 # The scores did not change because the model correctly stated that
 # the employee satisfaction score was not found in the provided documents.
+# The model did not invent a score, so the response remained faithful to
+# the available context and relevant to the question.
 #
 # LLM-as-a-judge means using an LLM to evaluate another LLM's answer.
 # It is useful for RAG because it can check support and relevance,

@@ -87,7 +87,6 @@ for question in questions:
 # =========================
 # Step 5: Find a Failure
 # =========================
-        
 
 failure_question = "What is Groundwork Coffee's annual revenue?"
 
