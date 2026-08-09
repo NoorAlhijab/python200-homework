@@ -147,9 +147,9 @@ results = simple_keyword_retrieval(query, documents, verbose=True)
 print("Selected document:", results[0][0])
 
 # The result was loyalty.txt, even though hours.txt is the correct document.
-# The query matched "weekends" in hours.txt and "your" in both hiring.txt
-# and loyalty.txt. All three documents had an overlap score of 1, so the
-# keyword retriever selected loyalty.txt because of the tie.
+# The query matched "weekends" in hours.txt and the common word "your"
+# in hiring.txt and loyalty.txt. Because all three documents had an
+# overlap score of 1, the retriever selected loyalty.txt because of the tie.
 # This shows that basic keyword retrieval can select the wrong document
 # when common words create a tie.
 
@@ -162,12 +162,16 @@ query = "Do you have anything without caffeine?"
 results = simple_keyword_retrieval(query, documents, verbose=True)
 print("Selected document:", results[0][0])
 
-# The output I got: "Selected document: None found" because the query does not
-# have matching keywords in the documents.
-# This means keyword RAG did not get the answer right because it only looks
-# for matching words and does not understand the meaning of the query.
-# The better retrieval is semantic retrieval because it can understand
-# the meaning of the query instead of only matching exact keywords.
+# The output was "Selected document: None found" because there were no
+# overlapping keywords between the query and any of the documents.
+#
+# Keyword RAG did not get the answer because it only looks for exact
+# keyword matches and does not understand that "without caffeine" is
+# related to drinks such as decaf coffee.
+#
+# Semantic retrieval would do better because it compares the meaning
+# of the query with the meaning of the documents, so it can find relevant
+# information even when the exact words do not match.
 
 # =====================
 # Keyword Question 3
