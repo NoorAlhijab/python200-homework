@@ -46,32 +46,32 @@ else:
 # =====================
 
 
-# steps = [
-# "Extract text from source documents",
-# "Split text into chunks",
-# "Convert text chunks into embeddings",
-# "Receive the user's query",
-# "Embed the user's query",
-# "Retrieve the most relevant chunks",
-# "Inject retrieved chunks into the prompt",
-# "Generate a response from the LLM",
-# ]
-
-# Step 1: Extract text from source documents
+# Correct RAG steps 
+#
+# 1. Extract text from source documents
+# 2. Split text into chunks
+# 3. Convert text chunks into embeddings
+# 4. Receive the user's query
+# 5. Embed the user's query
+# 6. Retrieve the most relevant chunks
+# 7. Inject retrieved chunks into the prompt
+# 8. Generate a response from the LLM
+#
+# 1. Extract text from source documents
 # Get the text from the source documents so it can be processed.
-# Step 2: Split text into chunks
+# 2. Split text into chunks
 # Break the text into smaller chunks so the relevant information can be found.
-# Step 3: Convert text chunks into embeddings
+# 3. Convert text chunks into embeddings
 # Convert each text chunk into an embedding so the meaning of the text can be compared.
-# Step 4: Receive the user's query
+# 4. Receive the user's query
 # Receive the question from the user.
-# Step 5: Embed the user's query
+# 5. Embed the user's query
 # Convert the user's question into an embedding so it can be compared with the document chunks.
-# Step 6: Retrieve the most relevant chunks
+# 6. Retrieve the most relevant chunks
 # Find the chunks that are most relevant to the user's question.
-# Step 7: Inject retrieved chunks into the prompt
+# 7. Inject retrieved chunks into the prompt
 # Add the relevant chunks to the prompt so the LLM has the information it needs.
-# Step 8: Generate a response from the LLM
+# 8. Generate a response from the LLM
 # The LLM uses the user's question and the retrieved information to generate a response.
 
 
@@ -231,12 +231,11 @@ for q in questions:
     print(f"\nQ: {q}")
     response = query_engine.query(q)
     print("A:", response)
-    
-    for node_with_score in response.source_nodes:
-        print(f"Node ID: {node_with_score.node.node_id}")
+
+    for i, node_with_score in enumerate(response.source_nodes[:3], start=1):
+        print(f"\nSource Node {i}:")
         print(f"Similarity Score: {node_with_score.score:.4f}")
         print(f"Text Snippet: {node_with_score.node.get_content()[:150]}...")
-        print("-" * 30)
 
 # Observation for Query 1:
 # The first chunk is relevant because it contains information about
@@ -257,7 +256,7 @@ for q in questions:
 # LlamaIndex Question 2
 # =====================
 
-question = "When did BrightLeaf partner with SunSpan and what did they focus on?"
+question = "What employee benefits does BrightLeaf offer?"
 
 # Run with similarity_top_k=1
 query_engine_1 = index.as_query_engine(similarity_top_k=1)
@@ -266,17 +265,19 @@ response_1 = query_engine_1.query(question)
 print("\n--- similarity_top_k=1 ---")
 print("Q:", question)
 print("A:", response_1)
+
 for node_with_score in response_1.source_nodes:
     print(f"Similarity Score: {node_with_score.score:.4f}")
-    
+
+
 # Run with similarity_top_k=5
 query_engine_5 = index.as_query_engine(similarity_top_k=5)
-
 response_5 = query_engine_5.query(question)
 
 print("\n--- similarity_top_k=5 ---")
 print("Q:", question)
 print("A:", response_5)
+
 for node_with_score in response_5.source_nodes:
     print(f"Similarity Score: {node_with_score.score:.4f}")
 
@@ -342,6 +343,7 @@ relevancy_result = relevancy_evaluator.evaluate_response(
 
 print("\n--- Employee Benefits Query ---")
 print("Q:", q)
+print("Response:", response)
 print("Faithfulness Evaluation:", faithfulness_result.score)
 print("Relevancy Evaluation:", relevancy_result.score)
 
@@ -362,6 +364,7 @@ relevancy_result2 = relevancy_evaluator.evaluate_response(
 
 print("\n--- Missing Information Query ---")
 print("Q:", q2)
+print("Response:", response2)
 print("Faithfulness Evaluation:", faithfulness_result2.score)
 print("Relevancy Evaluation:", relevancy_result2.score)
 

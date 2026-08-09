@@ -112,7 +112,8 @@ for i, source_node in enumerate(failure_response.source_nodes[:3], start=1):
 # I asked about Groundwork's annual revenue because it is not in the documents.
 # The retrieval returned related documents, but none contained revenue information.
 # The model correctly said the revenue could not be determined instead of guessing.
-# This shows that AI responses should be checked against the retrieved sources.
+# The model's tone was cautious rather than confident because the information was missing.
+# This shows that AI responses should still be checked against the retrieved sources.
 # I would improve the system by adding a similarity threshold and requiring the
 # assistant to say when the available information is not enough to answer.
 
