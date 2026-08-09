@@ -108,10 +108,11 @@ for i, source_node in enumerate(failure_response.source_nodes[:3], start=1):
     print(f"Similarity score: {source_node.score}")
     print(f"Chunk text: {source_node.node.get_content()[:200]}")
 
-# I asked about Groundwork's annual revenue because it is not in the documents.
 # The retrieval returned related documents, but none contained revenue information.
-# The model correctly said the revenue could not be determined instead of guessing.
-# The model's tone was cautious rather than confident because the information was missing.
+# Because the requested information was missing, the model became cautious and
+# said the revenue could not be determined instead of giving a confident guess.
+# This shows that the model's tone can become more cautious when the retrieved
+# context does not contain enough information to answer the question.
 # This shows that AI responses should still be checked against the retrieved sources.
 # I would improve the system by adding a similarity threshold and requiring the
 # assistant to say when the available information is not enough to answer.
