@@ -45,6 +45,18 @@ else:
 # Concepts Question 3
 # =====================
 
+# The original list provided in the assignment:
+#
+# steps = [
+#     "Generate a response from the LLM",
+#     "Extract text from source documents",
+#     "Receive the user's query",
+#     "Retrieve the most relevant chunks",
+#     "Convert text chunks into embeddings",
+#     "Inject retrieved chunks into the prompt",
+#     "Split text into chunks",
+#     "Embed the user's query",
+# ]
 
 # Correct RAG steps 
 #
@@ -94,7 +106,7 @@ def simple_keyword_retrieval(query, documents, verbose=True):
     stopwords = {
         "a", "an", "the", "and", "or", "in", "on", "of", "for", "to", "is",
         "are", "was", "were", "by", "with", "at", "from", "that", "this",
-        "as", "be", "it", "its", "their", "they", "we", "you", "our"
+        "as", "be", "it", "its", "their", "they", "we", "you", "our", "your"
     }
     translator = str.maketrans("", "", string.punctuation)
 
@@ -146,12 +158,11 @@ documents = {
 results = simple_keyword_retrieval(query, documents, verbose=True)
 print("Selected document:", results[0][0])
 
-# The result was loyalty.txt, even though hours.txt is the correct document.
-# The query matched "weekends" in hours.txt and the common word "your"
-# in hiring.txt and loyalty.txt. Because all three documents had an
-# overlap score of 1, the retriever selected loyalty.txt because of the tie.
-# This shows that basic keyword retrieval can select the wrong document
-# when common words create a tie.
+# The result was hours.txt, which is the correct document for this question.
+# The stop-word filtering removes common words that do not provide useful
+# information for retrieval. The remaining relevant keywords include
+# "hours" and "weekends", and "weekends" matches the hours.txt document.
+# Therefore, the keyword retriever correctly selects hours.txt.
 
 # =====================
 # Keyword Question 2
@@ -162,16 +173,13 @@ query = "Do you have anything without caffeine?"
 results = simple_keyword_retrieval(query, documents, verbose=True)
 print("Selected document:", results[0][0])
 
-# The output was "Selected document: None found" because there were no
+# The result was "Selected document: None found" because there were no
 # overlapping keywords between the query and any of the documents.
-#
-# Keyword RAG did not get the answer because it only looks for exact
-# keyword matches and does not understand that "without caffeine" is
-# related to drinks such as decaf coffee.
-#
-# Semantic retrieval would do better because it compares the meaning
-# of the query with the meaning of the documents, so it can find relevant
-# information even when the exact words do not match.
+# Keyword retrieval only looks for exact keyword matches, so it does not
+# understand that "without caffeine" could relate to drinks such as coffee.
+# Semantic retrieval could perform better because it compares the meaning
+# of the query with the meaning of the documents rather than only matching
+# exact words.
 
 # =====================
 # Keyword Question 3
@@ -254,19 +262,21 @@ for q in questions:
         print(f"Text Snippet: {node_with_score.node.get_content()[:150]}...")
 
 # Observation for Query 1:
-# The first chunk is relevant because it contains information about
-# BrightLeaf's employee benefits. The other two chunks are less relevant
-# because they are about the mission and security. The model's answer is
-# confident and specific and does not use uncertain language. The mission
-# and security chunks were unexpected for this question.
+# The first retrieved chunk was the most relevant because it contained
+# information about BrightLeaf's employee benefits. The other two chunks
+# were less relevant because they discussed the company mission and security
+# policies. The response was specific and directly answered the question.
+# This shows that the retriever can find the relevant information, but
+# retrieving three chunks can also include some less relevant context.
 
 
 # Observation for Query 2:
-# The first chunk is relevant because it contains BrightLeaf's security
-# policies. The other two chunks are less relevant because they are about
-# employee benefits and the company mission. The model's answer is
-# confident and specific and does not use uncertain language. The benefits
-# and mission chunks were unexpected for this question.
+# The first retrieved chunk was the most relevant because it contained
+# information about BrightLeaf's security policies. The other two chunks
+# were less relevant because they discussed employee benefits and the company
+# mission. The response was specific and directly answered the question.
+# This shows that the retriever identified the appropriate security-related
+# information, while also returning some unrelated context.
 
 # =====================
 # LlamaIndex Question 2
@@ -297,11 +307,13 @@ print("A:", response_5)
 for node_with_score in response_5.source_nodes:
     print(f"Similarity Score: {node_with_score.score:.4f}")
 
-# The answers are very similar for top_k=1 and top_k=5. The top_k=1
-# response uses only the most relevant chunk, while top_k=5 provides
-# four additional chunks. In this case, the extra context did not
-# significantly change the answer. More retrieved context is not
-# always better because some of the additional chunks may be less relevant.
+# The answers were very similar for similarity_top_k=1 and similarity_top_k=5.
+# With top_k=1, the response used only the highest-scoring and most relevant
+# source chunk. With top_k=5, additional chunks were retrieved, but the
+# additional chunks had lower similarity scores and were less relevant to
+# the question. In this case, the extra context did not significantly change
+# the answer. This shows that more retrieved context is not always better
+# because lower-quality or less relevant chunks can add noise to the context.
 
 # =====================
 # LlamaIndex Question 3
