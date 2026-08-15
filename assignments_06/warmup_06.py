@@ -1,4 +1,4 @@
-# --- RAG Concepts ---
+# --- Load Environment Variables ---
 from dotenv import load_dotenv
 import os
 
@@ -35,13 +35,18 @@ else:
 # Concepts Question 2
 # =====================
 
-# AI models can generate hallucinations that sound convincing but are wrong.
+
 # A confidently wrong answer is more harmful than an answer that says
-# "I am not sure" because confident language can make users believe the
-# information is reliable and act on it without checking. The tone matters
-# because people tend to trust answers that sound certain and authoritative.
+# "I am not sure" because people may trust a confident response and act
+# on incorrect information. The confident tone can make the answer seem
+# authoritative even when it is wrong, which makes the hallucination harder
+# to detect.
+#
 # For example, if an AI gives incorrect medical information about how to
-# take a medication, a person could follow the advice and be harmed.
+# take a medication and presents it confidently, a person might follow
+# the advice and be harmed. If the AI instead says it is not sure and
+# recommends checking a reliable medical source, the person is less likely
+# to blindly trust the incorrect information.
 
 # =====================
 # Concepts Question 3
@@ -335,13 +340,25 @@ for node_with_score in response.source_nodes:
     print(f"Text Snippet: {node_with_score.node.get_content()[:150]}...")
     print("-" * 30)
 
-# I expected the pipeline to struggle because the documents do not contain
-# an employee satisfaction score. The model correctly said that the score
-# was not mentioned in the provided context. The retrieved chunks were
-# related to employee well-being, security, and the company mission, but
-# none contained the requested score. To improve the system, I would add
-# a relevance threshold so the system can avoid using unrelated chunks
-# when the requested information is not available.
+# What made the question difficult:
+# The BrightLeaf documents do not contain an employee satisfaction score,
+# so the information needed to answer the question was not available.
+
+# What went wrong:
+# The retriever returned chunks about employee well-being, security,
+# and the company overview. These chunks were related to BrightLeaf but
+# did not contain the requested score.
+
+# How the tone changed:
+# The benefits and security answers were confident and specific. For this
+# question, the model was more cautious and said the score was not mentioned
+# instead of making up a number.
+
+# What I would change:
+# I would add a similarity or relevance threshold so the system can recognize
+# when the retrieved information is not relevant enough to answer the question.
+# I would also instruct the model to say when information is unavailable
+# instead of guessing.
 
 # =====================
 # LlamaIndex Question 4
