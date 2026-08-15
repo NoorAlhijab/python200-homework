@@ -35,16 +35,30 @@ else:
 # Concepts Question 2
 # =====================
 
-# AI models sometimes generate hallucination responses that can mislead users
-# by providing wrong information. A confidently wrong answer is more harmful because
-# users may trust the answer and act on it when the model sounds very sure.
-# For example, if an AI gives wrong medical information about how to take a medication,
-# a person could follow the advice and get harmed.
+# AI models can generate hallucinations that sound convincing but are wrong.
+# A confidently wrong answer is more harmful than an answer that says
+# "I am not sure" because confident language can make users believe the
+# information is reliable and act on it without checking. The tone matters
+# because people tend to trust answers that sound certain and authoritative.
+# For example, if an AI gives incorrect medical information about how to
+# take a medication, a person could follow the advice and be harmed.
 
 # =====================
 # Concepts Question 3
 # =====================
 
+# The original list provided in the assignment:
+#
+# steps = [
+#     "Generate a response from the LLM",
+#     "Extract text from source documents",
+#     "Receive the user's query",
+#     "Retrieve the most relevant chunks",
+#     "Convert text chunks into embeddings",
+#     "Inject retrieved chunks into the prompt",
+#     "Split text into chunks",
+#     "Embed the user's query",
+# ]
 
 # Correct RAG steps 
 #
@@ -94,7 +108,7 @@ def simple_keyword_retrieval(query, documents, verbose=True):
     stopwords = {
         "a", "an", "the", "and", "or", "in", "on", "of", "for", "to", "is",
         "are", "was", "were", "by", "with", "at", "from", "that", "this",
-        "as", "be", "it", "its", "their", "they", "we", "you", "our"
+        "as", "be", "it", "its", "their", "they", "we", "you", "our", "your"
     }
     translator = str.maketrans("", "", string.punctuation)
 
@@ -146,12 +160,11 @@ documents = {
 results = simple_keyword_retrieval(query, documents, verbose=True)
 print("Selected document:", results[0][0])
 
-# The result was loyalty.txt, even though hours.txt is the correct document.
-# The query matched "weekends" in hours.txt and the common word "your"
-# in hiring.txt and loyalty.txt. Because all three documents had an
-# overlap score of 1, the retriever selected loyalty.txt because of the tie.
-# This shows that basic keyword retrieval can select the wrong document
-# when common words create a tie.
+# The result was hours.txt, which is the correct document for this question.
+# The stop-word filtering removes common words that do not provide useful
+# information for retrieval. The remaining relevant keywords include
+# "hours" and "weekends", and "weekends" matches the hours.txt document.
+# Therefore, the keyword retriever correctly selects hours.txt.
 
 # =====================
 # Keyword Question 2
@@ -162,16 +175,13 @@ query = "Do you have anything without caffeine?"
 results = simple_keyword_retrieval(query, documents, verbose=True)
 print("Selected document:", results[0][0])
 
-# The output was "Selected document: None found" because there were no
+# The result was "Selected document: None found" because there were no
 # overlapping keywords between the query and any of the documents.
-#
-# Keyword RAG did not get the answer because it only looks for exact
-# keyword matches and does not understand that "without caffeine" is
-# related to drinks such as decaf coffee.
-#
-# Semantic retrieval would do better because it compares the meaning
-# of the query with the meaning of the documents, so it can find relevant
-# information even when the exact words do not match.
+# Keyword retrieval only looks for exact keyword matches, so it does not
+# understand that "without caffeine" could relate to drinks such as coffee.
+# Semantic retrieval could perform better because it compares the meaning
+# of the query with the meaning of the documents rather than only matching
+# exact words.
 
 # =====================
 # Keyword Question 3
@@ -211,7 +221,7 @@ print("Selected document:", results[0][0])
 
 # | Feature                    | Keyword RAG                       | Semantic RAG                    |
 # |----------------------------|-----------------------------------|---------------------------------|
-# | What is compared?          | Exact word overlap                | Meaning  of the text            |
+# | What is compared?          | Exact word overlap                | Meaning of the text             |
 # | What is retrieved?         | Full document                     | Relevant text chunks            |
 # | Can it handle synonyms?    | No                                | Yes                             |
 # | Storage format             | Plain text dictionary             | Vector embeddings               |
@@ -254,19 +264,20 @@ for q in questions:
         print(f"Text Snippet: {node_with_score.node.get_content()[:150]}...")
 
 # Observation for Query 1:
-# The first chunk is relevant because it contains information about
-# BrightLeaf's employee benefits. The other two chunks are less relevant
-# because they are about the mission and security. The model's answer is
-# confident and specific and does not use uncertain language. The mission
-# and security chunks were unexpected for this question.
-
+# The first retrieved chunk was highly relevant because it contained
+# information about BrightLeaf's employee benefits. The second and third
+# chunks were less relevant because they discussed the company overview
+# and security. The response was confident and specific and directly
+# answered the question. Some unrelated context was retrieved because
+# similarity_top_k was set to 3.
 
 # Observation for Query 2:
-# The first chunk is relevant because it contains BrightLeaf's security
-# policies. The other two chunks are less relevant because they are about
-# employee benefits and the company mission. The model's answer is
-# confident and specific and does not use uncertain language. The benefits
-# and mission chunks were unexpected for this question.
+# The first retrieved chunk was highly relevant because it contained
+# BrightLeaf's security policies. The second and third chunks were less
+# relevant because they discussed employee benefits and the company
+# overview. The response was confident and specific and directly answered
+# the question. Some unrelated context was retrieved because
+# similarity_top_k was set to 3.
 
 # =====================
 # LlamaIndex Question 2
@@ -297,11 +308,14 @@ print("A:", response_5)
 for node_with_score in response_5.source_nodes:
     print(f"Similarity Score: {node_with_score.score:.4f}")
 
-# The answers are very similar for top_k=1 and top_k=5. The top_k=1
-# response uses only the most relevant chunk, while top_k=5 provides
-# four additional chunks. In this case, the extra context did not
-# significantly change the answer. More retrieved context is not
-# always better because some of the additional chunks may be less relevant.
+# The response changed between similarity_top_k=1 and similarity_top_k=5.
+# With top_k=1, the answer focused on the information from the most relevant
+# chunk. With top_k=5, the model included additional benefits from other
+# retrieved chunks, such as the Wellness Reimbursement Plan and the
+# Diversity, Equity, and Inclusion Council.
+# This shows that retrieving more context can add useful information, but
+# more context is not always better because lower-scoring chunks can also
+# introduce unrelated information or noise.
 
 # =====================
 # LlamaIndex Question 3
@@ -336,7 +350,7 @@ from llama_index.llms.openai import OpenAI
 from llama_index.core.evaluation import FaithfulnessEvaluator, RelevancyEvaluator
 
 # Create Judge LLM
-llm = OpenAI(model="gpt-4o-mini", temperature=0.2)
+llm = OpenAI(model="gpt-4o-mini", temperature=0)
 
 # Define evaluators
 faithfulness_evaluator = FaithfulnessEvaluator(llm=llm)
@@ -384,20 +398,25 @@ print("Response:", response2)
 print("Faithfulness Evaluation:", faithfulness_result2.score)
 print("Relevancy Evaluation:", relevancy_result2.score)
 
-# Both queries received 1.0 for faithfulness and relevancy.
+# A faithfulness score of 1.0 means the response is fully supported by
+# the retrieved context. A score of 0.0 means the response is not
+# supported by the retrieved context.
 #
-# A faithfulness score of 1.0 means the answer is fully supported by
-# the retrieved context. A score of 0.0 means the answer is not supported.
+# A relevancy score measures whether the response directly addresses
+# the user's question. Faithfulness checks whether the answer is
+# supported by the retrieved context, while relevancy checks whether
+# the answer addresses the question.
 #
-# A relevancy score measures whether the answer addresses the question.
-# Faithfulness checks whether the response is supported by the context,
-# while relevancy checks whether the response addresses the question.
+# The scores did not change between the two queries. Both queries received
+# a faithfulness score of 1.0 and a relevancy score of 1.0. For the second
+# query, the model did not invent an employee satisfaction score. Instead,
+# it clearly stated that the information was not available in the provided
+# context. Therefore, the judge considered the response faithful to the
+# context and relevant to the question.
 #
-# The scores did not change because the model correctly stated that
-# the employee satisfaction score was not found in the provided documents.
-# The model did not invent a score, so the response remained faithful to
-# the available context and relevant to the question.
-#
-# LLM-as-a-judge means using an LLM to evaluate another LLM's answer.
-# It is useful for RAG because it can check support and relevance,
-# not just whether an answer matches one expected answer.
+# LLM-as-a-judge means using an LLM to evaluate another LLM's response.
+# It is useful for RAG because there can be many correct ways to answer
+# the same question. A simple accuracy metric may expect one exact answer,
+# even when a response with different wording is still correct. An LLM
+# judge can evaluate whether the response is supported by the documents
+# and whether it answers the question.
