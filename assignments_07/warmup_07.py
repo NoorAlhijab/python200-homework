@@ -762,7 +762,9 @@ print(result)
 
 print(json.dumps(messages, indent=2, default=str))
 
-# --- Lesson 04: smolagents ---
+# --- Lesson 04 --- 
+# smolagents 
+
 from pathlib import Path
 
 import pandas as pd

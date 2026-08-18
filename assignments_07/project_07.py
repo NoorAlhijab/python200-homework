@@ -33,7 +33,7 @@ def load_happiness_data() -> dict:
 
         for year in range(2015, 2025):
             file_path = (
-                f"assignments_01/happiness_project/"
+                f"assignments/resources/happiness_project/"
                 f"world_happiness_{year}.csv"
             )
 
@@ -195,7 +195,7 @@ queries = [
     "Summarize the Happiness score column.",
     "What is the correlation between GDP per capita and Happiness score? Is it statistically significant?",
     "Show me the top 5 happiest countries in 2020.",
-    "Plot Happiness score over the years as a line chart, with one line per region using Regional indicator. Use pandas to read assignments_01/outputs/merged_happiness.csv directly. Save the plot to assignments_07/outputs/happiness_by_region.png.",
+    "Plot Happiness score over the years as a line chart, with one line per Regional indicator. Save the plot to assignments_07/outputs/happiness_by_region.png."
 ]
 
 if __name__ == "__main__":
