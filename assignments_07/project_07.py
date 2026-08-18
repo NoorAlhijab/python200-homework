@@ -33,7 +33,7 @@ def load_happiness_data() -> dict:
 
         for year in range(2015, 2025):
             file_path = (
-                f"assignments/resources/happiness_project/"
+                f"assignments_01/happiness_project/"
                 f"world_happiness_{year}.csv"
             )
 
@@ -195,7 +195,7 @@ queries = [
     "Summarize the Happiness score column.",
     "What is the correlation between GDP per capita and Happiness score? Is it statistically significant?",
     "Show me the top 5 happiest countries in 2020.",
-    "Plot happiness_score over the years as a line chart, with one line per region. Save the plot to outputs/happiness_by_region.png.",
+    "Plot Happiness score over the years as a line chart, with one line per region using Regional indicator. Use pandas to read assignments_01/outputs/merged_happiness.csv directly. Save the plot to assignments_07/outputs/happiness_by_region.png.",
 ]
 
 if __name__ == "__main__":
@@ -217,16 +217,17 @@ if __name__ == "__main__":
 
     # My query 2
     my_query_2 = """
-        Create a histogram of the Happiness score using the actual dataset.
-        Use pandas to read assignments_01/outputs/merged_happiness.csv directly,
-        then plot the Happiness score column with matplotlib.
-        Do not use mock or simulated data.
-        Save the plot to assignments_07/outputs/happiness_histogram.png.
-        """
+    Create a histogram of the Happiness score using the actual dataset.
+    Use pandas to read assignments_01/outputs/merged_happiness.csv directly,
+    then use matplotlib to create the histogram.
+    Do not use mock or simulated data.
+    Save the plot to assignments_07/outputs/happiness_histogram.png.
+    """
+
     response_2 = agent.run(my_query_2, reset=False)
     print(response_2)
-    # Comment: This triggered code generation because the agent used pandas and
-    # matplotlib code to create and save the histogram instead of using a tool.
+    # Comment: This triggered code generation because the agent wrote
+    # pandas and matplotlib code to create and save the histogram.
 
 # ================================================================
 # Task 5: Reflection
@@ -236,9 +237,8 @@ if __name__ == "__main__":
 # statistically significant? Did it use the p-value correctly? What
 # threshold did it apply?
 
-# The agent used the p-value. It reported a p-value of 0.0 and correctly
-# said the correlation was statistically significant. It used 0.05 as
-# the significance threshold.
+# The agent reported a Pearson correlation of 0.6313 and a p-value of 0.0.
+# Since the p-value is below 0.05, the correlation is statistically significant.
 
 
 # 2. Did any of the agent's responses surprise you — either by being more
