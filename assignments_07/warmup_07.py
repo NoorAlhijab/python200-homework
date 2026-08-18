@@ -161,13 +161,14 @@ def run_agent(user_prompt: str) -> str:
 # Prediction:
 # I predict that the agent will not use the get_current_time tool because
 # it does not help with converting Celsius to Fahrenheit.
-#
 # I predict that there will be 1 API call because the agent can answer directly.
+
 result = run_agent("Convert 100 degrees Celsius to Fahrenheit")
 print(result)
 
-# My prediction was correct.
-# The agent did not use the tool and made 1 API call.
+# The prediction was correct. The agent did not use the tool
+# and made 1 API call.
+
 
 # =============
 # Q3
@@ -210,8 +211,9 @@ tools = [
 def run_agent(user_prompt: str) -> str:
     '''Run a minimal ReAct-style agent for a single user prompt.'''
 
-    SYSTEM_PROMPT = '''You are a simple assistant that can tell the current time.
-                     Use the tool get_current_time whenever a user asks about the time.'''
+    SYSTEM_PROMPT = '''You are a simple assistant that can tell the current time 
+    and convert Celsius to Fahrenheit. Use get_current_time for time questions. 
+    Use celsius_to_fahrenheit for Celsius conversion questions.'''
     
     # Step 1: start the conversation with system and user messages
     messages = [
@@ -735,20 +737,27 @@ def run_agent_cycle(messages, user_text, max_tool_rounds=5):
 # Q5
 # =============
 
-SYSTEM_PROMPT = '''You are a simple assistant that can  work with CSV files.
-                Use the available tools when needed to answer the user's question.'''
+SYSTEM_PROMPT = """You are a simple assistant that can work with CSV files.
+Use the available tools when needed to answer the user's question."""
+
 messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-result = run_agent_cycle(messages, "Load bike_commute.csv and compute the correlation between avg_traffic_density and avg_speed_kmh.")
+
+result = run_agent_cycle(
+    messages,
+    "Load bike_commute.csv and compute the correlation between avg_traffic_density and avg_speed_kmh."
+)
+
 print(result)
 
 # =============
 # Q6
 # =============
 
-# system: gives the assistant instructions for how the agent should work with CSV files.
-# user: contains the user's question.
-# assistant: contains the LLM's response, including its reasoning and action.
-# tool: contains the result from the Python function to help the agent answer the user's question.
+# system: provides instructions for the assistant.
+# user: contains the user's request.
+# assistant: contains the assistant's response and tool calls.
+# tool: contains the result returned by the tool.
+
 print(json.dumps(messages, indent=2, default=str))
 
 # --- Lesson 04: smolagents ---

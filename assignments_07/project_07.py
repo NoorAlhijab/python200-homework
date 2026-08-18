@@ -195,7 +195,7 @@ queries = [
     "Summarize the Happiness score column.",
     "What is the correlation between GDP per capita and Happiness score? Is it statistically significant?",
     "Show me the top 5 happiest countries in 2020.",
-    "Plot Happiness score over the years as a line chart, with one line per Regional indicator. Use pandas to read assignments_01/outputs/merged_happiness.csv directly. Save the plot to assignments_07/outputs/happiness_by_region.png."
+    "Plot happiness_score over the years as a line chart, with one line per region. Save the plot to outputs/happiness_by_region.png.",
 ]
 
 if __name__ == "__main__":
@@ -225,7 +225,8 @@ if __name__ == "__main__":
         """
     response_2 = agent.run(my_query_2, reset=False)
     print(response_2)
-    # Comment: This triggered code generation because the agent wrote pandas and matplotlib code to create the histogram.
+    # Comment: This triggered code generation because the agent used pandas and
+    # matplotlib code to create and save the histogram instead of using a tool.
 
 # ================================================================
 # Task 5: Reflection
@@ -244,7 +245,8 @@ if __name__ == "__main__":
 # capable than you expected, or less? Describe one specific example.
 
 # I was surprised that the agent could write pandas and matplotlib code
-# by itself to create and save the charts.
+# by itself to create charts. I also noticed that it sometimes needed
+# several steps to handle errors when working with the data and plots.
 
 
 # 3. What one additional tool would make this agent meaningfully more useful?
