@@ -8,6 +8,8 @@ def celsius_to_fahrenheit(celsius: float) -> str:
     """Convert a Celsius temperature to Fahrenheit and return it as a formatted string."""
     fahrenheit = (celsius * 9 / 5) + 32
     return f"{celsius}°C is {fahrenheit}°F"
+
+
 tools = [
     {
         'type': 'function',
@@ -17,10 +19,10 @@ tools = [
             'parameters': {
                 'type': 'object',
                 'properties': {
-                  'celsius': {
-                      'type': 'number',
-                      'description': 'Temperature in Celsius.'
-                  }  
+                    'celsius': {
+                        'type': 'number',
+                        'description': 'Temperature in Celsius.'
+                    }
                 },
                 'required': ['celsius'],
             },
@@ -38,7 +40,6 @@ print(celsius_to_fahrenheit(-40))
 
 from dotenv import load_dotenv
 from openai import OpenAI
-import os
 
 if load_dotenv():
     print('Successfully loaded environment variables from .env')
@@ -159,9 +160,10 @@ def run_agent(user_prompt: str) -> str:
     return first_message.content or ''
 
 # Prediction:
-# I predict that the agent will not use the get_current_time tool because
-# it does not help with converting Celsius to Fahrenheit.
-# I predict that there will be 1 API call because the agent can answer directly.
+# 1. Tool call: No. The get_current_time tool is only needed for
+#    questions about the current time, not Celsius conversion.
+# 2. API calls: 1. The model can answer the conversion directly,
+#    so no second API call is needed.
 
 result = run_agent("Convert 100 degrees Celsius to Fahrenheit")
 print(result)
@@ -288,11 +290,15 @@ def run_agent(user_prompt: str) -> str:
 
 response_a = run_agent("What is 37 degrees Celsius in Fahrenheit?")
 print("Response A:", response_a)
-# The Celsius conversion tool was called because the prompt asks to convert Celsius to Fahrenheit.
+
+# Comment: The celsius_to_fahrenheit tool was used because the user
+# asked for a Celsius-to-Fahrenheit conversion.
 
 response_b = run_agent("What is the boiling point of water in plain English?")
 print("Response B:", response_b)
-# No tool was called because the question can be answered directly without using a tool.
+
+# Comment: No tool was used because the question can be answered
+# directly without either available tool.
 
 # --- Lesson 03 ---
 # Multi-Tool Agent
@@ -521,20 +527,16 @@ print("Class defined")
 
 
 
-csv_backend = CsvManager(RESOURCES_DIR)
-
-# Reuse the CsvManager instance for Lesson 04
-csv_manager = csv_backend
+csv_manager = CsvManager(resources_dir=RESOURCES_DIR)
 
 node_tools = {
-    "list_csv_files": csv_backend.list_csv_files,
-    "load_csv": csv_backend.load_csv,
-    "get_columns": csv_backend.get_columns,
-    "summarize_columns": csv_backend.summarize_columns,
-    "describe_column": csv_backend.describe_column,
-    "compute_correlation": csv_backend.compute_correlation,
-    "plot_data": csv_backend.plot_data,
-    
+    "list_csv_files": csv_manager.list_csv_files,
+    "load_csv": csv_manager.load_csv,
+    "get_columns": csv_manager.get_columns,
+    "summarize_columns": csv_manager.summarize_columns,
+    "describe_column": csv_manager.describe_column,
+    "compute_correlation": csv_manager.compute_correlation,
+    "plot_data": csv_manager.plot_data,
 }
 
 tools_schema = [
