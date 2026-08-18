@@ -2,7 +2,6 @@ from smolagents import tool
 import pandas as pd
 from scipy.stats import pearsonr
 import os
-import glob
 
 # Path to the merged Week 1 dataset
 DATA_PATH = "assignments_01/outputs/merged_happiness.csv"
@@ -15,38 +14,49 @@ DATA_PATH = "assignments_01/outputs/merged_happiness.csv"
 df = None
 
 @tool
-def load_happiness_data() -> dict:    
+def load_happiness_data() -> dict:
     """Load the World Happiness dataset into memory.
-    Load the merged CSV from DATA_PATH. If that file 
-    does not exist, fall back to loading and merging 
-    all yearly CSVs from assignments/resources/happiness_project/ 
-    using a loop.  
-    Store the result in the global df.
+
+    Loads the merged World Happiness CSV from DATA_PATH. If the merged
+    file does not exist, loads and merges the yearly World Happiness CSV
+    files from the happiness project resources directory.
 
     Returns:
-    dict: A dictionary containing the shape and column names of the
-    loaded dataset, or an error message if the data cannot be loaded.
+        dict: A dictionary containing the dataset shape and column names.
     """
     global df
 
-    try:
-        if os.path.exists(DATA_PATH):
-            df = pd.read_csv(DATA_PATH)
-        else:
-            dfs = []
-            files = glob.glob("assignments/resources/happiness_project/*.csv")
-            for file in files:
-                yearly_df = pd.read_csv(file)
-                dfs.append(yearly_df)
+    if os.path.exists(DATA_PATH):
+        df = pd.read_csv(DATA_PATH)
+    else:
+        dfs = []
 
-            df = pd.concat(dfs, ignore_index=True)
-        return {
-            "shape": df.shape,
-            "columns": df.columns.tolist()
-        }
-    except Exception as e:
-        return {"error": str(e)}
+        for year in range(2015, 2025):
+            file_path = (
+                f"assignments/resources/happiness_project/"
+                f"world_happiness_{year}.csv"
+            )
 
+            yearly_df = pd.read_csv(
+                file_path,
+                sep=";",
+                decimal=","
+            )
+
+            yearly_df.rename(
+                columns={"Ladder score": "Happiness score"},
+                inplace=True
+            )
+
+            yearly_df["year"] = year
+            dfs.append(yearly_df)
+
+        df = pd.concat(dfs, ignore_index=True)
+
+    return {
+        "shape": df.shape,
+        "columns": df.columns.tolist()
+    }
 @tool
 def summarize_column(column: str) -> dict:
     """Return descriptive statistics for a single column 
@@ -114,10 +124,9 @@ def get_top_n_countries(column: str, year: int, n: int = 5) -> dict:
         n: The number of countries to return.
 
       Returns:
-        dict: A dictionary containing the year, ranking column,
-        and a list of dictionaries with each country's name and
-        value. Returns an error message if the data or requested
-        inputs are invalid.
+        A list of dictionaries containing each country's name and
+        value for the requested column, or an error dictionary if
+        the data or requested inputs are invalid.
     """ 
     if df is None:
         return {"error": "Data is not loaded."}
@@ -127,20 +136,20 @@ def get_top_n_countries(column: str, year: int, n: int = 5) -> dict:
 
     try:
         year_data = df[df["year"] == year]
-
+        
         top_n = (
             year_data
             .sort_values(column, ascending=False)
             .head(n)
         )
 
-        return {
-            "year": year,
-            "column": column,
-            "results": top_n[["Country", column]].to_dict(
-                orient="records"
-            )
-        }
+        return [
+            {
+                "country": row["Country"],
+                column: row[column]
+            }
+            for _, row in top_n.iterrows()
+        ]
 
     except Exception as e:
         return {"error": str(e)}   

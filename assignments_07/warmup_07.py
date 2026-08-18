@@ -159,10 +159,10 @@ def run_agent(user_prompt: str) -> str:
     return first_message.content or ''
 
 # Prediction:
-# I think the agent will not use the get_current_time tool because
+# I predict that the agent will not use the get_current_time tool because
 # it does not help with converting Celsius to Fahrenheit.
 #
-# I think there will be 1 API call because the agent can answer directly.
+# I predict that there will be 1 API call because the agent can answer directly.
 result = run_agent("Convert 100 degrees Celsius to Fahrenheit")
 print(result)
 
@@ -744,6 +744,7 @@ print(result)
 # =============
 # Q6
 # =============
+
 # system: gives the assistant instructions for how the agent should work with CSV files.
 # user: contains the user's question.
 # assistant: contains the LLM's response, including its reasoning and action.
@@ -845,7 +846,7 @@ def plot_data(y: str, x: str | None = None, plot_type: str = "line") -> str | di
 
     Returns:
         Generates and shows the plot. 
-        Retirms a short success message string, or an error dict/string.
+        Returns a short success message string, or an error dict/string.
     """
     return csv_manager.plot_data(y=y, x=x, plot_type=plot_type)
 
@@ -921,14 +922,12 @@ response_code = code_agent.run(
 print("ToolCallingAgent response:\n", response_tool)
 print("CodeAgent response:\n", response_code)
 
-# Both agents created the scatter plot, but neither changed the dots to green.
-# The ToolCallingAgent said the plot was created with green dots, but its tool
-# did not actually support changing the color.
-# The CodeAgent also created the plot but did not change the dots to green.
+# No, neither agent changed the dots to green.
+# ToolCallingAgent could not change the color because its tool did not support it.
+# CodeAgent also did not change the dots to green.
 #
-# This shows that ToolCallingAgent is useful when existing tools can perform
-# the task, while CodeAgent is more useful when the agent needs to write custom
-# code to control or modify the output.
+# ToolCallingAgent is useful when existing tools can complete the task.
+# CodeAgent is more useful when custom code is needed.
 
 # =============
 # Q9
