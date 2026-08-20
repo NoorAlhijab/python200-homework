@@ -1,6 +1,7 @@
 from smolagents import tool
 import pandas as pd
 from scipy.stats import pearsonr
+import glob
 import os
 
 # Path to the merged Week 1 dataset
@@ -18,57 +19,60 @@ def load_happiness_data() -> dict:
     """Load the World Happiness dataset into memory.
 
     Loads the merged World Happiness CSV from DATA_PATH. If the merged
-    file does not exist, loads and merges the yearly World Happiness CSV
-    files from the happiness project resources directory.
+    file does not exist, loads and merges all yearly CSV files from
+    assignments/resources/happiness_project/.
 
     Returns:
-        dict: A dictionary containing the dataset shape and column names.
+        A dictionary containing the dataset shape and column names.
     """
+
     global df
 
     if os.path.exists(DATA_PATH):
         df = pd.read_csv(DATA_PATH)
+
     else:
+        csv_files = sorted(
+            glob.glob("assignments/resources/happiness_project/*.csv")
+        )
+
+        if not csv_files:
+            return {
+                "error": "No CSV files found in assignments/resources/happiness_project/."
+            }
+
         dfs = []
 
-        for year in range(2015, 2025):
-            file_path = (
-                f"assignments_01/happiness_project/"
-                f"world_happiness_{year}.csv"
-            )
+        for file_path in csv_files:
+            yearly_df = pd.read_csv(file_path)
 
-            yearly_df = pd.read_csv(
-                file_path,
-                sep=";",
-                decimal=","
-            )
+            # Standardize column names across yearly files
+            if "Ladder score" in yearly_df.columns:
+                yearly_df.rename(
+                    columns={"Ladder score": "Happiness score"},
+                    inplace=True
+                )
 
-            yearly_df.rename(
-                columns={"Ladder score": "Happiness score"},
-                inplace=True
-            )
-
-            yearly_df["year"] = year
             dfs.append(yearly_df)
 
         df = pd.concat(dfs, ignore_index=True)
-
     return {
         "shape": df.shape,
-        "columns": df.columns.tolist()
-    }
+        "columns": df.columns.tolist(),
+    }    
+
+
 @tool
 def summarize_column(column: str) -> dict:
-    """Return descriptive statistics for a single column 
-    in the loaded dataset.
+    """Return descriptive statistics for a single column in the loaded dataset.
 
     Args:
-      column: The name of column to summarize.
-
+        column: The name of the column to summarize.
 
     Returns:
-      dict: Descriptive statistics for the requested column, or an
-      error message if the data is not loaded or the column does not exist.
+        A dictionary containing descriptive statistics for the requested
+        column, or an error dictionary if the data is not loaded or the
+        column does not exist.
     """
     if df is None:
         return {"error": "Data is not loaded."}
@@ -80,17 +84,19 @@ def summarize_column(column: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
     
+    
 @tool
 def compute_correlation(col1: str, col2: str) -> dict:
-    """Compute the Pearson correlation coefficient and 
-    p-value between two numeric columns.
-    
+    """Compute the Pearson correlation coefficient and p-value between two numeric columns.
+
     Args:
-      col1: The name of the first numeric column.
-      col2: The name of the second numeric column.
+        col1: The name of the first numeric column.
+        col2: The name of the second numeric column.
+
     Returns:
-      dict: A dictionary containing the two column names, the Pearson
-      correlation coefficient, and the p-value.
+        A dictionary containing col1, col2, pearson_r, and p_value,
+        or an error dictionary if the data is not loaded or a column
+        does not exist.
     """
     if df is None:
         return {"error": "Data is not loaded."}
@@ -115,19 +121,18 @@ def compute_correlation(col1: str, col2: str) -> dict:
 
 @tool
 def get_top_n_countries(column: str, year: int, n: int = 5) -> dict:
-    """Return the top N countries ranked by a given column 
-    for a specific year.
+    """Return the top N countries ranked by a given column for a specific year.
 
     Args:
         column: The column used to rank the countries.
         year: The year to filter the dataset by.
         n: The number of countries to return.
 
-      Returns:
-        A list of dictionaries containing each country's name and
-        value for the requested column, or an error dictionary if
-        the data or requested inputs are invalid.
-    """ 
+    Returns:
+        A list of dictionaries containing the country name and value for
+        the requested column, or an error dictionary if the data or
+        requested inputs are invalid.
+    """
     if df is None:
         return {"error": "Data is not loaded."}
 
@@ -160,7 +165,6 @@ def get_top_n_countries(column: str, year: int, n: int = 5) -> dict:
 
 from smolagents import CodeAgent, OpenAIServerModel
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -195,7 +199,7 @@ queries = [
     "Summarize the Happiness score column.",
     "What is the correlation between GDP per capita and Happiness score? Is it statistically significant?",
     "Show me the top 5 happiest countries in 2020.",
-    "Plot Happiness score over the years as a line chart, with one line per region using Regional indicator. Use pandas to read assignments_01/outputs/merged_happiness.csv directly. Save the plot to assignments_07/outputs/happiness_by_region.png.",
+    "Plot Happiness score over the years as a line chart, with one line per Regional indicator. Save the plot to outputs/happiness_by_region.png."
 ]
 
 if __name__ == "__main__":
@@ -205,6 +209,13 @@ if __name__ == "__main__":
         response = agent.run(query, reset=False)
         print(response)
 
+    plot_path = "outputs/happiness_by_region.png"
+
+    if os.path.exists(plot_path):
+        print(f"Plot saved successfully: {plot_path}")
+    else:
+        print(f"Plot was not found: {plot_path}")
+
     # ================================================================
     # Task 4: Your Own Questions
     # ================================================================
@@ -213,7 +224,7 @@ if __name__ == "__main__":
     my_query_1 = "What are the descriptive statistics for Happiness score?"  
     response_1 = agent.run(my_query_1, reset=False)
     print(response_1)
-    # # Comment: This triggered tool use because the agent used the summarize_column tool.
+    # Comment: This triggered tool use. The agent used the summarize_column tool.
 
     # My query 2
     my_query_2 = """
@@ -221,13 +232,13 @@ if __name__ == "__main__":
     Use pandas to read assignments_01/outputs/merged_happiness.csv directly,
     then use matplotlib to create the histogram.
     Do not use mock or simulated data.
-    Save the plot to assignments_07/outputs/happiness_histogram.png.
+    Save the plot to outputs/happiness_histogram.png.
     """
 
     response_2 = agent.run(my_query_2, reset=False)
     print(response_2)
-    # Comment: This triggered code generation because the agent wrote
-    # pandas and matplotlib code to create and save the histogram.
+   # Comment: This triggered code generation. The agent wrote pandas and matplotlib
+   # code to read the actual dataset and create the histogram.
 
 # ================================================================
 # Task 5: Reflection
@@ -237,20 +248,29 @@ if __name__ == "__main__":
 # statistically significant? Did it use the p-value correctly? What
 # threshold did it apply?
 
-# The agent reported a Pearson correlation of 0.6313 and a p-value of 0.0.
-# Since the p-value is below 0.05, the correlation is statistically significant.
+# The agent reported a Pearson correlation of 0.6313 and a p-value of 0.0
+# after rounding to four decimal places. It used the p-value to determine
+# whether the correlation was statistically significant. Since the p-value
+# was below the 0.05 significance threshold, the agent correctly concluded
+# that the correlation between GDP per capita and Happiness score was
+# statistically significant.
 
 
 # 2. Did any of the agent's responses surprise you — either by being more
 # capable than you expected, or less? Describe one specific example.
 
-# I was surprised that the agent could write pandas and matplotlib code
-# by itself to create charts. I also noticed that it sometimes needed
-# several steps to handle errors when working with the data and plots.
+# I was surprised that the agent could write pandas and matplotlib code by
+# itself to create charts. For example, when I asked it to create a histogram
+# of the Happiness score, it wrote Python code to read the actual dataset and
+# create the plot. This showed me that the agent can do more than just use
+# the tools I created and can write its own code when the available tools
+# are not enough.
 
 
 # 3. What one additional tool would make this agent meaningfully more useful?
 
 # I would add a tool to compare happiness scores for countries or regions
-# across different years. This would make it easier to analyze changes
-# over time.
+# across different years. The tool could take a country or region and a range
+# of years and return the happiness scores over time. This would make it
+# easier for the agent to answer questions about how happiness changed over
+# time.
