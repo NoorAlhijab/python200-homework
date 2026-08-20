@@ -868,6 +868,7 @@ def plot_data(y: str, x: str | None = None, plot_type: str = "line") -> str | di
 # =============
 # Q7
 # =============
+
 @tool
 def compute_correlation(col1: str, col2: str) -> dict:
     """Compute the Pearson correlation between two columns in the loaded CSV.
@@ -896,6 +897,7 @@ print(compute_correlation.description)
 # =============
 # Q8
 # =============
+
 TOOLS = [
     list_csv_files,
     load_csv,
@@ -943,17 +945,17 @@ print("ToolCallingAgent response:\n", response_tool)
 print("CodeAgent response:\n", response_code)
 
 # The ToolCallingAgent loaded the CSV and used the existing plot_data
-# tool to create the scatter plot, but the dots were not green because
-# plot_data does not have a parameter for controlling color.
+# tool to create the scatter plot. However, the dots were not green
+# because the plot_data tool does not have a color parameter.
 #
-# The CodeAgent also created the plot using the existing plot_data tool
-# in this run, so the dots were not green either. It did not generate
-# custom matplotlib code to change the color.
+# The CodeAgent also created the scatter plot using the available
+# plot_data tool in this run. The dots were not green because the
+# agent did not generate custom matplotlib code to set the color.
 #
-# This shows that both agents were limited by the functionality available
-# through the provided plot_data tool in this particular run. A custom
-# plotting tool with a color parameter would be needed to reliably
-# create a scatter plot with green dots.
+# This shows that the result depended on the tools available to the
+# agents. To reliably create green dots, the plotting tool would need
+# to support a color parameter, or the CodeAgent would need to generate
+# custom matplotlib code.
 
 # =============
 # Q9
