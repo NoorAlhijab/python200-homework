@@ -290,15 +290,13 @@ def run_agent(user_prompt: str) -> str:
 
 response_a = run_agent("What is 37 degrees Celsius in Fahrenheit?")
 print("Response A:", response_a)
+# Tool called: celsius_to_fahrenheit. The user asked for a Celsius-to-Fahrenheit conversion, so this tool was needed.
 
-# Comment: The celsius_to_fahrenheit tool was used because the user
-# asked for a Celsius-to-Fahrenheit conversion.
 
 response_b = run_agent("What is the boiling point of water in plain English?")
 print("Response B:", response_b)
+# No tool called. The question can be answered directly in plain English using general knowledge.
 
-# Comment: No tool was used because the question can be answered
-# directly without either available tool.
 
 # --- Lesson 03 ---
 # Multi-Tool Agent
@@ -739,8 +737,12 @@ def run_agent_cycle(messages, user_text, max_tool_rounds=5):
 # Q5
 # =============
 
-SYSTEM_PROMPT = """You are a simple assistant that can work with CSV files.
-Use the available tools when needed to answer the user's question."""
+SYSTEM_PROMPT = (
+    "You are a small data assistant for CSV files stored in resources/. "
+    "Use the available tools to do any data work (do not guess). "
+    "If no CSV is loaded yet, load one first (or list available CSV files). "
+    "Keep answers short and student-friendly."
+)
 
 messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
@@ -880,11 +882,16 @@ def compute_correlation(col1: str, col2: str) -> dict:
     return csv_manager.compute_correlation(col1, col2)
 print(compute_correlation.description)
 
-# In Q4, I manually wrote the JSON schema for the tool.
-# With smolagents, the @tool decorator creates the tool description
+# In Q4, I manually wrote the JSON schema for the compute_correlation tool.
+# The manual schema includes the tool name, description, parameters,
+# parameter types, and required parameters.
+#
+# With smolagents, the @tool decorator generates the tool description
 # and schema from the Python function.
-# The developer needs to provide a clear function name, parameter names,
-# type hints, and a useful docstring.
+# The developer needs to provide a clear function name, type hints for
+# the parameters, and a useful docstring that explains what the tool does,
+# what the parameters mean, and what the function returns.
+# This information helps smolagents create a good description for the LLM.
 
 # =============
 # Q8
@@ -935,22 +942,30 @@ response_code = code_agent.run(
 print("ToolCallingAgent response:\n", response_tool)
 print("CodeAgent response:\n", response_code)
 
-# No, neither agent changed the dots to green.
-# ToolCallingAgent could not change the color because its tool did not support it.
-# CodeAgent also did not change the dots to green.
+# The ToolCallingAgent did not actually change the dots to green.
+# It called the existing plot_data tool, but plot_data does not have
+# a parameter for specifying the dot color. The agent's final response
+# incorrectly said that the plot had green dots.
 #
-# ToolCallingAgent is useful when existing tools can complete the task.
-# CodeAgent is more useful when custom code is needed.
+# The CodeAgent also did not change the dots to green. It generated code
+# that called the existing plot_data tool without a color parameter.
+#
+# This shows that a ToolCallingAgent is useful when the existing tools
+# already provide the functionality needed for the task.
+# A CodeAgent can be more useful when the task requires generating
+# custom code or functionality that the existing tools do not provide.
 
 # =============
 # Q9
 # =============
 
-# 1. A ToolCallingAgent could be a good choice for a task such as loading
-# a CSV file and calculating the correlation between two columns.
-# Predefined tools can complete the task, so the agent does not need
-# to generate new code.
+# 1. A ToolCallingAgent would be a better choice for a task such as
+# loading a CSV file and calculating the correlation between two columns.
+# This is a good fit because the task can be completed using predefined
+# tools, so the agent does not need to generate and execute new code.
 #
-# 2. One risk of using a CodeAgent is that the generated code could
-# contain errors or perform unintended actions. The CodeAgent generates
-# and executes code, while a ToolCallingAgent is limited to predefined tools.
+# 2. One meaningful risk of using a CodeAgent is that the agent generates
+# and executes code. The generated code could contain errors or perform
+# unintended actions. This risk does not apply in the same way to a
+# ToolCallingAgent because it is limited to the predefined tools provided
+# by the developer.
