@@ -55,7 +55,7 @@ def get_current_time() -> str:
     '''Return the current local time as a formatted string.'''
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-get_current_time()
+print(get_current_time())
 
 tools = [
     {
@@ -942,18 +942,18 @@ response_code = code_agent.run(
 print("ToolCallingAgent response:\n", response_tool)
 print("CodeAgent response:\n", response_code)
 
-# The ToolCallingAgent did not actually change the dots to green.
-# It called the existing plot_data tool, but plot_data does not have
-# a parameter for specifying the dot color. The agent's final response
-# incorrectly said that the plot had green dots.
+# The ToolCallingAgent loaded the CSV and used the existing plot_data
+# tool to create the scatter plot, but the dots were not green because
+# plot_data does not have a parameter for controlling color.
 #
-# The CodeAgent also did not change the dots to green. It generated code
-# that called the existing plot_data tool without a color parameter.
+# The CodeAgent also created the plot using the existing plot_data tool
+# in this run, so the dots were not green either. It did not generate
+# custom matplotlib code to change the color.
 #
-# This shows that a ToolCallingAgent is useful when the existing tools
-# already provide the functionality needed for the task.
-# A CodeAgent can be more useful when the task requires generating
-# custom code or functionality that the existing tools do not provide.
+# This shows that both agents were limited by the functionality available
+# through the provided plot_data tool in this particular run. A custom
+# plotting tool with a color parameter would be needed to reliably
+# create a scatter plot with green dots.
 
 # =============
 # Q9

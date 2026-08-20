@@ -49,13 +49,23 @@ def load_happiness_data() -> dict:
             # Standardize column names across yearly files
             if "Ladder score" in yearly_df.columns:
                 yearly_df.rename(
-                    columns={"Ladder score": "Happiness score"},
+                    columns={"Ladder score": "happiness_score"},
                     inplace=True
                 )
-
             dfs.append(yearly_df)
 
         df = pd.concat(dfs, ignore_index=True)
+    # Rename columns to match the project instructions
+    df.rename(
+    columns={
+        "Country": "country",
+        "Happiness score": "happiness_score",
+        "GDP per capita": "gdp_per_capita",
+        "Regional indicator": "region",
+    },
+    inplace=True,
+    )    
+
     return {
         "shape": df.shape,
         "columns": df.columns.tolist(),
@@ -129,9 +139,9 @@ def get_top_n_countries(column: str, year: int, n: int = 5) -> dict:
         n: The number of countries to return.
 
     Returns:
-        A list of dictionaries containing the country name and value for
-        the requested column, or an error dictionary if the data or
-        requested inputs are invalid.
+        A list of dictionaries. Each dictionary contains a "country" key
+        and the value for the requested column, or an error dictionary
+        if the data or requested inputs are invalid.
     """
     if df is None:
         return {"error": "Data is not loaded."}
@@ -150,7 +160,7 @@ def get_top_n_countries(column: str, year: int, n: int = 5) -> dict:
 
         return [
             {
-                "country": row["Country"],
+                "country": row["country"],
                 column: row[column]
             }
             for _, row in top_n.iterrows()
@@ -196,10 +206,10 @@ agent = CodeAgent(
 
 queries = [
     "Load the happiness data and tell me its shape and column names.",
-    "Summarize the Happiness score column.",
-    "What is the correlation between GDP per capita and Happiness score? Is it statistically significant?",
+    "Summarize the happiness_score column.",
+    "What is the correlation between gdp_per_capita and happiness_score? Is it statistically significant?",
     "Show me the top 5 happiest countries in 2020.",
-    "Plot Happiness score over the years as a line chart, with one line per Regional indicator. Save the plot to outputs/happiness_by_region.png."
+    "Plot happiness_score over the years as a line chart, with one line per region. Save the plot to outputs/happiness_by_region.png.",
 ]
 
 if __name__ == "__main__":
@@ -221,14 +231,14 @@ if __name__ == "__main__":
     # ================================================================
 
     # My query 1
-    my_query_1 = "What are the descriptive statistics for Happiness score?"  
+    my_query_1 = "What are the descriptive statistics for happiness_score?"    
     response_1 = agent.run(my_query_1, reset=False)
     print(response_1)
     # Comment: This triggered tool use. The agent used the summarize_column tool.
 
     # My query 2
     my_query_2 = """
-    Create a histogram of the Happiness score using the actual dataset.
+    Create a histogram of the happiness_score using the actual dataset.
     Use pandas to read assignments_01/outputs/merged_happiness.csv directly,
     then use matplotlib to create the histogram.
     Do not use mock or simulated data.
@@ -252,7 +262,7 @@ if __name__ == "__main__":
 # after rounding to four decimal places. It used the p-value to determine
 # whether the correlation was statistically significant. Since the p-value
 # was below the 0.05 significance threshold, the agent correctly concluded
-# that the correlation between GDP per capita and Happiness score was
+# that the correlation between gdp_per_capita and happiness_score was
 # statistically significant.
 
 
