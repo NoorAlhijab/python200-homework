@@ -55,7 +55,7 @@ def get_current_time() -> str:
     '''Return the current local time as a formatted string.'''
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-get_current_time()
+print(get_current_time())
 
 tools = [
     {
@@ -868,6 +868,7 @@ def plot_data(y: str, x: str | None = None, plot_type: str = "line") -> str | di
 # =============
 # Q7
 # =============
+
 @tool
 def compute_correlation(col1: str, col2: str) -> dict:
     """Compute the Pearson correlation between two columns in the loaded CSV.
@@ -896,6 +897,7 @@ print(compute_correlation.description)
 # =============
 # Q8
 # =============
+
 TOOLS = [
     list_csv_files,
     load_csv,
@@ -942,18 +944,18 @@ response_code = code_agent.run(
 print("ToolCallingAgent response:\n", response_tool)
 print("CodeAgent response:\n", response_code)
 
-# The ToolCallingAgent did not actually change the dots to green.
-# It called the existing plot_data tool, but plot_data does not have
-# a parameter for specifying the dot color. The agent's final response
-# incorrectly said that the plot had green dots.
+# The ToolCallingAgent loaded the CSV and used the existing plot_data
+# tool to create the scatter plot. However, the dots were not green
+# because the plot_data tool does not have a color parameter.
 #
-# The CodeAgent also did not change the dots to green. It generated code
-# that called the existing plot_data tool without a color parameter.
+# The CodeAgent also created the scatter plot using the available
+# plot_data tool in this run. The dots were not green because the
+# agent did not generate custom matplotlib code to set the color.
 #
-# This shows that a ToolCallingAgent is useful when the existing tools
-# already provide the functionality needed for the task.
-# A CodeAgent can be more useful when the task requires generating
-# custom code or functionality that the existing tools do not provide.
+# This shows that the result depended on the tools available to the
+# agents. To reliably create green dots, the plotting tool would need
+# to support a color parameter, or the CodeAgent would need to generate
+# custom matplotlib code.
 
 # =============
 # Q9
