@@ -232,9 +232,10 @@ response = client.chat.completions.create(
 
 print("Few-Shot Sentiment Analysis:\n", response.choices[0].message.content)
 
-# The few-shot examples produced the same sentiment classifications as the previous prompts,
-# but they made the output format more consistent and reinforced how the model should classify
-# positive, negative, and mixed reviews.
+# I would use zero-shot for simple tasks where the instructions are clear.
+# I would use one-shot when I want to show the model a specific output format.
+# I would use few-shot when the task is more complex and multiple examples
+# can help the model understand the expected pattern.
 
 # ==========================
 # Prompt Question 4 — Chain of Thought
