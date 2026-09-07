@@ -19,8 +19,6 @@ def get_client():
     
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
-supabase = get_client()
-
 # Step 1: Extract
 
 def extract_weather():
@@ -142,10 +140,13 @@ duplicate rows when it is run multiple times.
 
 # --- Run Pipeline ---
 
-data = extract_weather()
+if __name__ == "__main__":
+    supabase = get_client()
 
-records = transform_weather(data)
+    data = extract_weather()
 
-load_weather(supabase, records)
+    records = transform_weather(data)
 
-verify_load(supabase)    
+    load_weather(supabase, records)
+
+    verify_load(supabase)    
