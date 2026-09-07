@@ -1,5 +1,5 @@
 # --- Supabase Connection ---
-# Connection Question 1
+# Q1
 
 """
 
@@ -14,7 +14,7 @@ they should be stored in a .env file.
 
 """
 
-# Connection Question 2
+# Q2
 
 import os
 from dotenv import load_dotenv
@@ -36,7 +36,7 @@ def get_client():
 
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Connection Question 3
+# Q3
 
 """
 Connection Question 3:
@@ -56,7 +56,7 @@ users can only access their own records.
 """
 
 # --- supabase-py CRUD ---
-# CRUD Question 1
+# Q1
 
 from datetime import date
 
@@ -85,7 +85,7 @@ with on_conflict="date". This will insert the record if the date does not
 exist and update the record if the date already exists.
 """
 
-# CRUD Question 2
+# Q2
 
 def get_records_by_date_range(supabase, start, end):
     response = supabase.table("weather_raw").select("*").gte("date", start).lte("date", end).execute()
@@ -99,7 +99,7 @@ records = get_records_by_date_range(supabase, start, end)
 print("Retrieved:", records)
 
 
-# CRUD Question 3
+# Q3
 
 """
 The difference between insert and upsert:
@@ -131,7 +131,7 @@ def safe_upsert(supabase, records):
 
 
 # --- Idempotency ---
-# Idempotency Question 1
+# Q1
 
 """
 Idempotency is important in a data pipeline because the pipeline may need

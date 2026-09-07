@@ -4,6 +4,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from supabase import create_client
+from datetime import date
 
 def get_client():
     load_dotenv()
@@ -12,9 +13,9 @@ def get_client():
     SUPABASE_KEY = os.getenv("SUPABASE_KEY")
     
     if not SUPABASE_URL:
-            raise ValueError("Supabase URL is missing. Please check your .env file.")
+        raise ValueError("Supabase URL is missing. Please check your .env file.")
     if not SUPABASE_KEY:
-            raise ValueError("Supabase Key is missing. Please check your .env file.")
+        raise ValueError("Supabase Key is missing. Please check your .env file.")
     
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -96,9 +97,48 @@ def verify_load(supabase):
     print("Earliest date:", earliest.data[0]["date"])
     print("Latest date:", latest.data[0]["date"])
 
-    july_4 = (supabase.table("weather_raw").select("*").eq("date", "2023-07-04").execute())
+    july_4 = (
+        supabase.table("weather_raw")
+        .select("*")
+        .eq("date", "2023-07-04")
+        .execute()
+    )
 
-    print("2023-07-04:", july_4.data)
+    if july_4.data:
+        print("2023-07-04:", july_4.data[0])
+    else:
+        nearby = (
+            supabase.table("weather_raw")
+            .select("*")
+            .gte("date", "2023-07-01")
+            .lte("date", "2023-07-07")
+            .execute()
+        )
+
+        if nearby.data:
+            target_date = date(2023, 7, 4)
+
+            nearest = min(
+                nearby.data,
+                key=lambda row: abs(
+                    date.fromisoformat(row["date"]) - target_date
+                )
+            )
+
+            print("July 4 was missing. Nearest date:", nearest)
+        else:
+            print("No nearby dates found.")
+
+"""
+Idempotency confirmation:
+
+I ran the script twice. The first run loaded the 2023 weather records.
+I ran the script a second time, and the total number of rows remained
+the same because the records are upserted using date as the conflict key.
+
+This confirms that the pipeline is idempotent and does not create
+duplicate rows when it is run multiple times.
+"""            
 
 # --- Run Pipeline ---
 
