@@ -32,7 +32,7 @@ def incremental_read(supabase):
     # Get the weather records
     raw_rows = (supabase.table("weather_raw").select("*").execute().data)
 
-    # Get dates that have already benn enriched
+    # Get dates that have already been enriched
     enriched_rows = (supabase.table("weather_enriched").select("date").execute().data)
 
     already_done = {row["date"] for row in enriched_rows}
@@ -215,10 +215,10 @@ def verify_enriched(supabase):
     for row in sample.data:
         print(
             f"{row['date']} | "
-            f"good={row['good_for_running']} | "
-            f"confidence={row['confidence']:.2f}"
+            f"good_for_running={row['good_for_running']} | "
+            f"confidence={row['confidence']:.2f} | "
+            f"llm_summary={row['llm_summary']}"
         )
-        print(f"  {row['llm_summary']}")
 
     good_count = (
         supabase.table("weather_enriched")
@@ -230,11 +230,13 @@ def verify_enriched(supabase):
     print(f"\nGood-for-running days: {good_count.count}")
 
 # LLM summary review:
+# The summaries generally reflected the weather features and the model prediction.n 
 # A particularly good summary was the January 2 summary because it mentioned
-# mild temperatures, no precipitation, light winds, and the model confidence.
-# An off summary was the January 1 summary because "forrunning" is missing a space.
-# This could happen because LLM-generated text can sometimes contain small
-# formatting or wording errors even when the weather information is correct.
+# the mild temperatures, no precipitation, light winds, and matched the model prediction.
+# A weaker summary was the January 1 summary because "forrunning" was missing a space,
+# which made the recommendation less clear.
+# The weather information was still generally correct, but the formatting issue
+# made the summary less clear and readable.
 
 if __name__ == "__main__":
     supabase = get_client()
