@@ -68,4 +68,6 @@ def call_with_retry(client, messages, max_retries=3):
                 return None
 
 # I would use this in a production pipeline when an API call may fail temporarily,
-# such as from a network or service error.
+# such as because of a network problem, timeout, or temporary service error.
+# Retrying after a short delay can give the API another chance to complete the request
+# instead of failing the entire pipeline immediately.

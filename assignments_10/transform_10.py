@@ -251,10 +251,14 @@ if __name__ == "__main__":
 # =========================
 
 # 1. The ML classifier was trained on Charlotte, NC data. If you loaded weather data for a different city in Week 9, do you expect the classifier's predictions to be accurate? Why or why not?
-# If the classifier was trained on Charlotte, NC and used on data from a different city, its accuracy could differ because different cities may have different weather patterns.
-#
+# If the classifier was trained on Charlotte, NC and used on data from a different city, its accuracy could be different because cities can have different weather patterns and conditions.
+# The model may not perform as well on weather data that is different from the data it was trained on.
+
 # 2. The LLM recommendations are generated from the model's prediction and the weather features. Does the LLM have any ability to "override" the classifier, or is it purely additive? What are the implications of that?
-# The LLM does not override the classifier. It is an additive step that uses the classifier's prediction and weather features to create a natural-language recommendation.
-#
+# The LLM does not override the classifier. It is an additive step that uses the classifier's prediction and the weather features to create a natural-language recommendation.
+# This means the LLM explains the prediction but does not change the original ML prediction.
+
 # 3. If you ran this pipeline on 50,000 records instead of 365, what would be your main concern: cost, latency, or something else? How would you address it?
-# My main concerns would be API cost and latency because each record requires an LLM call. I could reduce these concerns by avoiding unnecessary calls, using batching or controlled concurrency, and using a lower-cost model when appropriate.
+# My main concerns would be API cost and latency because each record requires an LLM call.
+# I could reduce these concerns by avoiding unnecessary calls, using batching or controlled concurrency, and using a lower-cost model when appropriate.
+# I would also monitor the pipeline to make sure it is processing records efficiently and handling API errors correctly.
