@@ -230,13 +230,14 @@ def verify_enriched(supabase):
     print(f"\nGood-for-running days: {good_count.count}")
 
 # LLM summary review:
-# The summaries generally reflected the weather features and the model prediction.n 
+# The summaries generally reflected the weather features and the model prediction.
 # A particularly good summary was the January 2 summary because it mentioned
 # the mild temperatures, no precipitation, light winds, and matched the model prediction.
-# A weaker summary was the January 1 summary because "forrunning" was missing a space,
-# which made the recommendation less clear.
-# The weather information was still generally correct, but the formatting issue
-# made the summary less clear and readable.
+# A weaker summary was the January 1 summary because it was less specific about
+# the actual weather conditions and only generally mentioned mild temperatures,
+# minimal precipitation, and wind.
+# The recommendation was still reasonable, but it provided less specific information
+# than some of the other summaries.
 
 if __name__ == "__main__":
     supabase = get_client()
