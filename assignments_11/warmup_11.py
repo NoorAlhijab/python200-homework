@@ -15,11 +15,7 @@
 # Prefect Question 2
 # ============================================================
 
-from prefect import task
-
 @task(retries=3, retry_delay_seconds=30)
-def call_api():
-    pass
 
 # ============================================================
 # Prefect Question 3
@@ -70,12 +66,9 @@ def call_api():
 # Production Question 3
 # ============================================================
 
-from prefect import get_run_logger
-
 @task
-def load_enriched(enrichment_records):
-    logger = get_run_logger()
-    logger.info(f"Upserted {len(enrichment_records)} enrichment records.")
+def load_enriched(enrichment_records: list):
+    get_run_logger().info(f"Upserted {len(enrichment_records)} enrichment records.")
 
 # ============================================================
 # Production Question 4
